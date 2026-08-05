@@ -1,7 +1,9 @@
 package com.europay.hub.security;
 
+import com.europay.hub.features.iam.domain.InvalidCredentialsException;
 import com.europay.hub.shared.exception.BusinessRuleViolationException;
 import com.europay.hub.shared.exception.DomainException;
+import com.europay.hub.shared.exception.ResourceNotFoundException;
 import com.europay.hub.shared.web.ApiResponse;
 import com.europay.hub.shared.web.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,6 +25,20 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidCredentials(
+            InvalidCredentialsException ex, HttpServletRequest request) {
+        log.warn("Failed login attempt for {}", request.getRequestURI());
+        return build(HttpStatus.UNAUTHORIZED, ex.code(), ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNotFound(
+            ResourceNotFoundException ex, HttpServletRequest request) {
+        log.warn("Not found: {}", ex.getMessage());
+        return build(HttpStatus.NOT_FOUND, ex.code(), ex.getMessage(), request);
+    }
 
     @ExceptionHandler(BusinessRuleViolationException.class)
     public ResponseEntity<ApiResponse<Void>> handleBusinessRule(

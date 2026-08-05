@@ -101,7 +101,18 @@ docker compose -f docker/docker-compose.yml --profile full up --build
 
 ## 📖 API Documentation
 
-Interactive OpenAPI docs are served at `/swagger-ui.html`. Planned endpoints:
+Interactive OpenAPI docs are served at `/swagger-ui.html` (with an **Authorize** button for JWT). Endpoints:
+
+| Method | Path | Description | Status |
+|---|---|---|---|
+| POST | `/api/auth/register` | Register a merchant + owner user | ✅ |
+| POST | `/api/auth/login` | Log in, receive a JWT | ✅ |
+| GET | `/api/merchants/me` | My merchant profile | ✅ |
+| POST | `/api/merchants/me/api-keys` | Create an API key (secret shown once) | ✅ |
+| GET | `/api/merchants/me/api-keys` | List my API keys (no secrets) | ✅ |
+| DELETE | `/api/merchants/me/api-keys/{id}` | Revoke an API key | ✅ |
+
+Planned:
 
 | Method | Path | Description |
 |---|---|---|
@@ -119,7 +130,7 @@ Interactive OpenAPI docs are served at `/swagger-ui.html`. Planned endpoints:
 | Phase | Theme | Status |
 |---|---|---|
 | 0 | Skeleton, shared kernel, CI, ArchUnit, FA docs foundation | ✅ |
-| 1 | IAM & Merchant (JWT, roles, API keys) | ⬜ |
+| 1 | IAM & Merchant (JWT, roles, hashed API keys) | ✅ |
 | 2 | Orders & Customers | ⬜ |
 | 3 | Payment core (state machine, mock providers, idempotency) | ⬜ |
 | 4 | Payment lifecycle (authorize, refund, cancel, retry, expiry) | ⬜ |
