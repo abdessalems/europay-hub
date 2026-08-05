@@ -6,7 +6,7 @@
 
 *Accept multiple payment methods (Wero · Bancontact · Visa) through a single, clean API.*
 
-[![CI](https://github.com/OWNER/europay-hub/actions/workflows/ci.yml/badge.svg)](../../actions)
+[![CI](https://github.com/abdessalems/europay-hub/actions/workflows/ci.yml/badge.svg)](https://github.com/abdessalems/europay-hub/actions)
 ![Java](https://img.shields.io/badge/Java-21-orange)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4-green)
 ![License](https://img.shields.io/badge/license-MIT-blue)
