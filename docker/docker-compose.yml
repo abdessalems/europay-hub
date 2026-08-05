@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: europay-postgres
+    environment:
+      POSTGRES_DB: europay
+      POSTGRES_USER: europay
+      POSTGRES_PASSWORD: europay
+    ports:
+      # Host 5433 → container 5432, to avoid clashing with a locally installed PostgreSQL.
+      - "5433:5432"
+    volumes:
+      - europay-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U europay -d europay"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: europay-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8080:8080"
+    profiles: ["full"]   # `docker compose up` starts only postgres; add --profile full for the app
+
+volumes:
+  europay-pgdata:
