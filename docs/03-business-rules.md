@@ -24,6 +24,17 @@ Numbered, testable rules. Each rule links to the code/test that enforces it. New
 | BR-013 | A merchant can only view/revoke its own API keys. | `ApiKeyService.revoke` ownership filter (404 otherwise, no leak) |
 | BR-014 | A revoked or expired API key cannot authenticate. | `ApiKey.isUsable`, `ApiKeyService.authenticate` |
 
+## Orders & Customers (Phase 2)
+
+| ID | Rule | Enforced by |
+|---|---|---|
+| BR-030 | An order amount must be positive and not exceed the configured maximum (10,000.00 EUR). | `Order.create`, `OrderService.create` |
+| BR-031 | Orders are EUR-only initially. | `Money` / `Currency`, `OrderService` |
+| BR-032 | An order reference is unique per merchant; auto-generated when not supplied. | `OrderService.resolveReference`, `uq_order_merchant_reference` |
+| BR-033 | A customer is uniquely identified by (merchant, email) and reused across orders. | `uq_customer_merchant_email`, find-or-create in `OrderService` |
+| BR-034 | Only a `CREATED` order may be cancelled. | `Order.cancel` (HTTP 409 otherwise) |
+| BR-035 | A merchant can only access its own orders and customers. | ownership filters in `OrderService` / `CustomerService` (404 otherwise) |
+
 ## Deferred (enforced in later phases)
 
 | ID | Rule | Phase |
@@ -33,5 +44,5 @@ Numbered, testable rules. Each rule links to the code/test that enforces it. New
 | BR-022 | A refund is only allowed for a payment in `SUCCESS`/`SETTLED`. | 4 |
 | BR-023 | An `EXPIRED` payment cannot be approved. | 4 |
 | BR-024 | Webhooks are retried at most 3 times. | 5 |
-| BR-025 | Payment amount must not exceed the configurable maximum; only EUR initially. | 3 |
+| BR-025 | Payment amount inherits the order's validated amount (max + EUR already enforced at order creation, BR-030/031). | 3 |
 | BR-026 | Every important action is audited. | 6 |

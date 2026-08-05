@@ -33,3 +33,26 @@ Given/When/Then per story. Each criterion is covered by an automated test (see `
 
 - **AC-006.1** Given one of my keys, When I revoke it, Then I receive `204` and the key can no longer authenticate.
 - **AC-006.2** Given a key that is not mine, When I revoke it, Then I receive `404` (its existence is not revealed).
+
+## US-007 — Create an order
+
+- **AC-007.1** Given valid customer + amount, When I create an order, Then I receive `201` with status `CREATED`, the amount, currency `EUR`, a `customerId`, and a `reference`.
+- **AC-007.2** Given no reference, When I create an order, Then a unique reference is generated.
+- **AC-007.3** Given an amount above the maximum, When I create an order, Then I receive `409 AMOUNT_EXCEEDS_MAX`.
+- **AC-007.4** Given a customer email that already exists for me, When I create another order, Then the existing customer is reused (not duplicated).
+
+## US-008 / US-009 — View & list orders
+
+- **AC-008.1** Given one of my orders, When I GET it, Then I receive `200` with its details.
+- **AC-009.1** Given I have orders, When I list them, Then I receive a paginated envelope (`content`, `page`, `size`, `totalElements`, `totalPages`), newest first.
+- **AC-009.2** Given an order that is not mine, When I GET it, Then I receive `404`.
+
+## US-010 — Cancel an order
+
+- **AC-010.1** Given a `CREATED` order, When I cancel it, Then I receive `200` with status `CANCELLED`.
+- **AC-010.2** Given an already-cancelled order, When I cancel it again, Then I receive `409 ORDER_NOT_CANCELLABLE`.
+
+## US-011 / US-012 — Customers & history
+
+- **AC-011.1** Given I created orders, When I list customers, Then the customers appear (paginated), and a customer not mine returns `404`.
+- **AC-012.1** Given a customer with orders, When I GET their orders, Then I receive that customer's orders (paginated).

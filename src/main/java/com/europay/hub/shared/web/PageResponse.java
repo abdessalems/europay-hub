@@ -1,5 +1,6 @@
 package com.europay.hub.shared.web;
 
+import com.europay.hub.shared.domain.PageResult;
 import java.util.List;
 import java.util.function.Function;
 import org.springframework.data.domain.Page;
@@ -34,5 +35,11 @@ public record PageResponse<T>(
                 page.getSize(),
                 page.getTotalElements(),
                 page.getTotalPages());
+    }
+
+    /** Build from a framework-neutral {@link PageResult}. */
+    public static <T> PageResponse<T> of(PageResult<T> page) {
+        return new PageResponse<>(
+                page.content(), page.page(), page.size(), page.totalElements(), page.totalPages());
     }
 }

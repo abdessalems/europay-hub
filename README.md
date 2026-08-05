@@ -111,13 +111,16 @@ Interactive OpenAPI docs are served at `/swagger-ui.html` (with an **Authorize**
 | POST | `/api/merchants/me/api-keys` | Create an API key (secret shown once) | ✅ |
 | GET | `/api/merchants/me/api-keys` | List my API keys (no secrets) | ✅ |
 | DELETE | `/api/merchants/me/api-keys/{id}` | Revoke an API key | ✅ |
+| POST | `/api/orders` | Create an order (customer auto-created) | ✅ |
+| GET | `/api/orders/{id}` · `/api/orders` | View / list (paginated) orders | ✅ |
+| POST | `/api/orders/{id}/cancel` | Cancel an order | ✅ |
+| GET | `/api/customers` · `/api/customers/{id}` | List / view customers | ✅ |
+| GET | `/api/customers/{id}/orders` | Customer order history | ✅ |
 
 Planned:
 
 | Method | Path | Description |
 |---|---|---|
-| POST | `/api/orders` | Create an order |
-| GET | `/api/orders/{id}` | View an order |
 | POST | `/api/payments` | Create a payment (Idempotency-Key aware) |
 | GET | `/api/payments/{id}` | Payment status |
 | POST | `/api/payments/{id}/refund` | Refund a successful payment |
@@ -131,7 +134,7 @@ Planned:
 |---|---|---|
 | 0 | Skeleton, shared kernel, CI, ArchUnit, FA docs foundation | ✅ |
 | 1 | IAM & Merchant (JWT, roles, hashed API keys) | ✅ |
-| 2 | Orders & Customers | ⬜ |
+| 2 | Orders & Customers (pagination, order lifecycle) | ✅ |
 | 3 | Payment core (state machine, mock providers, idempotency) | ⬜ |
 | 4 | Payment lifecycle (authorize, refund, cancel, retry, expiry) | ⬜ |
 | 5 | Webhooks (outbox, signing, retries) | ⬜ |

@@ -72,3 +72,48 @@ Request:
 
 ### DELETE /api/merchants/me/api-keys/{id}
 `204` No Content. `404` if the key is not the caller's.
+
+---
+
+## Orders — *requires `bearer-jwt`, role MERCHANT*
+
+### POST /api/orders
+Request (amount in EUR major units; `reference` optional):
+```json
+{ "customer": { "email": "buyer@x.eu", "fullName": "Jan Buyer" }, "amount": "49.99", "reference": null }
+```
+`201` data:
+```json
+{ "id": "uuid", "reference": "ORD-7A61152D20", "status": "CREATED", "amount": 49.99,
+  "currency": "EUR", "customerId": "uuid", "createdAt": "…" }
+```
+Errors: `409 AMOUNT_EXCEEDS_MAX`, `409 REFERENCE_TAKEN`, `400 VALIDATION_ERROR`.
+
+### GET /api/orders/{id}
+`200` single order (as above); `404` if not the caller's.
+
+### GET /api/orders?page=0&size=20
+`200` data = paginated envelope:
+```json
+{ "content": [ { "...order..." } ], "page": 0, "size": 20, "totalElements": 1, "totalPages": 1 }
+```
+
+### POST /api/orders/{id}/cancel
+`200` order with `status: CANCELLED`; `409 ORDER_NOT_CANCELLABLE` if not `CREATED`.
+
+---
+
+## Customers — *requires `bearer-jwt`, role MERCHANT*
+
+### GET /api/customers?page=0&size=20
+`200` paginated:
+```json
+{ "content": [ { "id": "uuid", "email": "buyer@x.eu", "fullName": "Jan Buyer", "createdAt": "…" } ],
+  "page": 0, "size": 20, "totalElements": 1, "totalPages": 1 }
+```
+
+### GET /api/customers/{id}
+`200` single customer; `404` if not the caller's.
+
+### GET /api/customers/{id}/orders?page=0&size=20
+`200` paginated orders for that customer (payment-history precursor).

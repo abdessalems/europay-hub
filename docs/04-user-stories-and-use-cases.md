@@ -52,6 +52,36 @@ Stories are `US-nnn`; each maps to acceptance criteria (doc 05) and automated te
 - Rules: BR-013, BR-014
 - Endpoint: `DELETE /api/merchants/me/api-keys/{id}`
 
+## Phase 2 — Orders & Customers
+
+### US-007 — Create an order
+**As an** authenticated merchant
+**I want to** create an order for a customer with an amount
+**So that** I can later collect a payment for it.
+
+- Rules: BR-030, BR-031, BR-032, BR-033
+- Endpoint: `POST /api/orders`
+
+### US-008 — View an order
+**As an** authenticated merchant **I want to** view an order by id **So that** I can check its status and amount.
+- Rules: BR-035 · Endpoint: `GET /api/orders/{id}`
+
+### US-009 — List orders
+**As an** authenticated merchant **I want to** list my orders (paginated) **So that** I can review activity.
+- Endpoint: `GET /api/orders?page=&size=`
+
+### US-010 — Cancel an order
+**As an** authenticated merchant **I want to** cancel an order **So that** an unpaid order can be voided.
+- Rules: BR-034, BR-035 · Endpoint: `POST /api/orders/{id}/cancel`
+
+### US-011 — View customers
+**As an** authenticated merchant **I want to** list and view my customers **So that** I can manage who buys from me.
+- Rules: BR-033, BR-035 · Endpoints: `GET /api/customers`, `GET /api/customers/{id}`
+
+### US-012 — View a customer's order history
+**As an** authenticated merchant **I want to** see a customer's orders **So that** I understand their activity (precursor to payment history).
+- Endpoint: `GET /api/customers/{id}/orders`
+
 ---
 
 ## Use Case — UC-001: Register a merchant
@@ -73,3 +103,13 @@ Stories are `US-nnn`; each maps to acceptance criteria (doc 05) and automated te
 | **Precondition** | User exists and is ACTIVE |
 | **Main flow** | 1. Actor submits email + password. 2. System loads user by email. 3. System verifies password hash. 4. System issues a signed JWT. 5. Actor uses `Authorization: Bearer <token>`. |
 | **Alternative** | 2a/3a. Unknown email or wrong password → `401 INVALID_CREDENTIALS` (indistinguishable). |
+
+## Use Case — UC-003: Create an order
+
+| | |
+|---|---|
+| **Actor** | Authenticated merchant |
+| **Precondition** | Valid JWT, role MERCHANT |
+| **Main flow** | 1. Merchant submits customer (email, name) + amount (+ optional reference). 2. System validates amount (positive, ≤ max, EUR). 3. System finds-or-creates the customer by (merchant, email). 4. System resolves a unique reference. 5. System creates the order (CREATED) and returns it. |
+| **Postcondition** | Order exists in `CREATED`; customer exists. |
+| **Alternatives** | 2a. Amount > max → `409 AMOUNT_EXCEEDS_MAX`. 4a. Duplicate reference → `409 REFERENCE_TAKEN`. 1a. Invalid body → `400 VALIDATION_ERROR`. |
