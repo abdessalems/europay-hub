@@ -1,0 +1,33 @@
+@startuml EuroPayHub-Seq-CreatePayment
+' EuroPay Hub — Create payment with idempotency + provider Strategy (UC-004)
+autonumber
+actor "Merchant / Server" as Client
+participant "PaymentController" as C
+participant "PaymentService" as S
+database "IdempotencyStore" as I
+database "OrderRepository" as O
+participant "PaymentProvider\n(Strategy)" as P
+database "PaymentRepository" as PR
+participant "Outbox + Audit\nlisteners" as L
+
+Client -> C : POST /api/payments\n{orderId, method}  [Idempotency-Key]
+C -> S : create(merchantId, request, key)
+opt key present
+  S -> I : find(merchant, key)
+  alt same request already processed
+    I --> S : record
+    S --> Client : 201 original payment (replay)
+  end
+end
+S -> O : load order (owned, CREATED)
+S -> S : Payment.create(...)
+S -> P : submit(payment)
+P --> S : ProviderResult(ref, outcome)
+S -> S : payment.submit(ref); apply outcome
+S -> PR : save(payment)
+S ->> L : publish PaymentDomainEvent(created, pending/authorized)
+opt key present
+  S -> I : save(record)
+end
+S --> Client : 201 PaymentResponse
+@enduml

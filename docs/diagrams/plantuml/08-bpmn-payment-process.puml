@@ -1,0 +1,49 @@
+@startuml EuroPayHub-BPMN-PaymentProcess
+' EuroPay Hub — Payment business process (BPMN-style, swimlanes)
+title Payment collection process
+
+|Customer|
+start
+:Place order request;
+
+|Merchant|
+:Create order (CREATED);
+:Request payment\n(choose method);
+
+|EuroPay Hub|
+:Check Idempotency-Key;
+if (duplicate request?) then (yes)
+  :Return original payment;
+  stop
+else (no)
+endif
+:Create Payment (CREATED);
+:Route to provider (Strategy);
+
+|Payment Provider|
+:Process transaction;
+
+|EuroPay Hub|
+if (provider outcome?) then (DECLINED)
+  :Payment FAILED;
+  :Emit payment.failed;
+  stop
+elseif (AUTHORIZED - cards) then
+  :Payment AUTHORIZED;
+else (PENDING - account methods)
+  :Payment PENDING;
+  |Customer|
+  :Approve payment;
+  |EuroPay Hub|
+endif
+:Payment SUCCESS;
+:Mark order PAID;
+:Write outbox event\n(same transaction);
+
+|EuroPay Hub|
+:Dispatch signed webhook\n(HMAC, 3x retry);
+
+|Merchant|
+:Receive payment.success\nnotification;
+stop
+@enduml

@@ -15,8 +15,9 @@ This folder is a **first-class deliverable**: the Functional-Analysis artefacts 
 | 06 | [API Contracts](06-api-contracts.md) | Request/response schemas, error codes | ✅ Phase 1–6 |
 | 08 | [Risk Analysis](08-risk-analysis.md) | Risks, likelihood/impact, mitigations | ✅ |
 | 09 | [Release Notes](09-release-notes.md) | Per-milestone changelog | ✅ |
-| 07 | Test Cases | Covered by automated tests (unit + `*IT`) | ✅ code |
+| 07 | [Test Cases](07-test-cases.md) | TC-001…070 traced to acceptance criteria + automated tests | ✅ |
 | — | [diagrams/](diagrams/) | Mermaid — [P1](diagrams/phase1-iam-merchant.md) · [P2](diagrams/phase2-order-customer.md) · [P3](diagrams/phase3-payment.md) · [P4](diagrams/phase4-lifecycle.md) · [P5](diagrams/phase5-webhooks.md) · [P6](diagrams/phase6-audit-dashboard.md) | ✅ |
+| — | [diagrams/plantuml/](diagrams/plantuml/) | **Formal UML/BPMN sources (.puml)** — use-case, class, ER, state, sequences, BPMN | ✅ |
 
 ## Traceability
 

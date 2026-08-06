@@ -1,0 +1,32 @@
+@startuml EuroPayHub-PaymentState
+' EuroPay Hub — Payment State Machine (the core invariant)
+[*] --> CREATED : create()
+
+CREATED   --> PENDING    : submit()
+CREATED   --> CANCELLED  : cancel()
+PENDING   --> AUTHORIZED : authorize()
+PENDING   --> SUCCESS    : markSucceeded()
+PENDING   --> FAILED     : fail()
+PENDING   --> EXPIRED    : expire() [scheduler]
+PENDING   --> CANCELLED  : cancel()
+AUTHORIZED --> SUCCESS   : markSucceeded()
+AUTHORIZED --> CANCELLED : cancel()
+AUTHORIZED --> FAILED    : fail()
+SUCCESS   --> SETTLED    : settle()
+SUCCESS   --> REFUNDED   : refund()
+SETTLED   --> REFUNDED   : refund()
+FAILED    --> PENDING    : retry()
+
+EXPIRED   --> [*]
+CANCELLED --> [*]
+REFUNDED  --> [*]
+SETTLED   --> [*]
+
+note right of SUCCESS
+  Approving a SUCCESS payment
+  marks the order PAID (BR-050)
+end note
+note right of REFUNDED
+  Only from SUCCESS / SETTLED (BR-022)
+end note
+@enduml

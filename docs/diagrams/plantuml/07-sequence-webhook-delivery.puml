@@ -1,0 +1,28 @@
+@startuml EuroPayHub-Seq-Webhook
+' EuroPay Hub — Transactional outbox + signed delivery with retry (UC-023)
+autonumber
+participant "PaymentService" as PS
+participant "OutboxListener" as OL
+database "webhook_event\n(outbox)" as DB
+participant "DispatchScheduler" as SC
+participant "HttpWebhookSender" as SND
+actor "Merchant endpoint" as M
+
+group same transaction (atomic)
+  PS ->> OL : PaymentDomainEvent
+  OL -> DB : INSERT WebhookEvent (PENDING)\nif endpoint active
+end
+
+... later, asynchronously ...
+
+SC -> SND : dispatchDue()
+SND -> SND : sign = HMAC_SHA256(secret, body)
+SND -> M : POST payload\nX-EuroPay-Signature: sha256=<hmac>
+alt 2xx
+  M --> SND : 200
+  SND -> DB : mark DELIVERED + log delivery
+else non-2xx / timeout
+  M --> SND : 5xx / error
+  SND -> DB : recordFailure -> retry (30s,60s...)\nor FAILED after 3
+end
+@enduml

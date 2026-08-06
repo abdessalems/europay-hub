@@ -1,0 +1,120 @@
+@startuml EuroPayHub-ERD
+' EuroPay Hub — Entity Relationship Diagram (physical model, Flyway V1-V7)
+skinparam linetype ortho
+hide circle
+
+entity MERCHANT {
+  * id : UUID <<PK>>
+  --
+  legal_name
+  email <<UK>>
+  status
+}
+entity APP_USER {
+  * id : UUID <<PK>>
+  --
+  merchant_id : UUID <<FK>>
+  email <<UK>>
+  password_hash
+  role
+}
+entity API_KEY {
+  * id : UUID <<PK>>
+  --
+  merchant_id : UUID <<FK>>
+  key_prefix
+  key_hash <<UK>>
+  status
+}
+entity CUSTOMER {
+  * id : UUID <<PK>>
+  --
+  merchant_id : UUID <<FK>>
+  email
+  full_name
+  == unique(merchant_id, email) ==
+}
+entity ORDERS {
+  * id : UUID <<PK>>
+  --
+  merchant_id : UUID <<FK>>
+  customer_id : UUID <<FK>>
+  reference
+  amount_minor
+  currency
+  status
+  == unique(merchant_id, reference) ==
+}
+entity PAYMENT {
+  * id : UUID <<PK>>
+  --
+  merchant_id : UUID <<FK>>
+  order_id : UUID <<FK>>
+  payment_method
+  amount_minor
+  status
+  provider_reference
+}
+entity REFUND {
+  * id : UUID <<PK>>
+  --
+  payment_id : UUID <<FK>>
+  amount_minor
+  reason
+}
+entity IDEMPOTENCY_KEY {
+  * id : UUID <<PK>>
+  --
+  merchant_id : UUID <<FK>>
+  idempotency_key
+  request_hash
+  payment_id
+  == unique(merchant_id, idempotency_key) ==
+}
+entity WEBHOOK_ENDPOINT {
+  * id : UUID <<PK>>
+  --
+  merchant_id : UUID <<FK,UK>>
+  url
+  secret
+  active
+}
+entity WEBHOOK_EVENT {
+  * id : UUID <<PK>>
+  --
+  merchant_id : UUID <<FK>>
+  event_type
+  payload
+  status
+  attempts
+  next_attempt_at
+}
+entity WEBHOOK_DELIVERY {
+  * id : UUID <<PK>>
+  --
+  webhook_event_id : UUID <<FK>>
+  attempt
+  status_code
+  success
+}
+entity AUDIT_LOG {
+  * id : UUID <<PK>>
+  --
+  merchant_id : UUID
+  actor
+  action
+  entity_type
+}
+
+MERCHANT ||--o{ APP_USER
+MERCHANT ||--o{ API_KEY
+MERCHANT ||--o{ CUSTOMER
+MERCHANT ||--o{ ORDERS
+MERCHANT ||--o{ WEBHOOK_ENDPOINT
+MERCHANT ||--o{ WEBHOOK_EVENT
+MERCHANT ||--o{ AUDIT_LOG
+CUSTOMER ||--o{ ORDERS
+ORDERS  ||--|| PAYMENT
+PAYMENT ||--o{ REFUND
+WEBHOOK_EVENT ||--o{ WEBHOOK_DELIVERY
+@enduml

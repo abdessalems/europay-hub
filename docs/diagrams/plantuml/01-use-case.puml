@@ -1,0 +1,76 @@
+@startuml EuroPayHub-UseCase
+' EuroPay Hub — Use Case Diagram (Functional Analysis)
+left to right direction
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+
+actor "Merchant\n(dashboard user)" as Merchant
+actor "Merchant Server\n(API key)"      as Server
+actor "Customer"                        as Customer
+actor "Payment Provider"                as Provider <<external>>
+actor "Scheduler"                       as Scheduler <<system>>
+
+rectangle "EuroPay Hub" {
+
+  package "Identity & Merchant" {
+    usecase "Register merchant"        as UC_Register
+    usecase "Log in (JWT)"             as UC_Login
+    usecase "Manage API keys"          as UC_ApiKeys
+    usecase "Configure webhook"        as UC_Webhook
+  }
+
+  package "Orders & Customers" {
+    usecase "Create order"             as UC_CreateOrder
+    usecase "Cancel order"             as UC_CancelOrder
+    usecase "View customers & history" as UC_Customers
+  }
+
+  package "Payments" {
+    usecase "Create payment"           as UC_CreatePayment
+    usecase "Approve payment"          as UC_Approve
+    usecase "Refund payment"           as UC_Refund
+    usecase "Cancel / retry payment"   as UC_CancelRetry
+    usecase "View payments"            as UC_ViewPayments
+  }
+
+  package "Insights" {
+    usecase "View dashboard metrics"   as UC_Dashboard
+    usecase "View audit log"           as UC_Audit
+    usecase "View webhook deliveries"  as UC_Deliveries
+  }
+
+  usecase "Deliver signed webhook"     as UC_Deliver
+  usecase "Expire stale payments"      as UC_Expire
+}
+
+Merchant --> UC_Register
+Merchant --> UC_Login
+Merchant --> UC_ApiKeys
+Merchant --> UC_Webhook
+Merchant --> UC_CreateOrder
+Merchant --> UC_CancelOrder
+Merchant --> UC_Customers
+Merchant --> UC_CreatePayment
+Merchant --> UC_Approve
+Merchant --> UC_Refund
+Merchant --> UC_CancelRetry
+Merchant --> UC_ViewPayments
+Merchant --> UC_Dashboard
+Merchant --> UC_Audit
+Merchant --> UC_Deliveries
+
+Server --> UC_CreatePayment
+Customer ..> UC_Approve : approves\n(account methods)
+
+UC_CreatePayment ..> Provider : <<include>> submit
+UC_Deliver --> Provider
+Scheduler --> UC_Deliver
+Scheduler --> UC_Expire
+
+note bottom of UC_Refund
+  Only SUCCESS / SETTLED payments (BR-022)
+end note
+note bottom of UC_CreatePayment
+  Idempotency-Key dedup (BR-041)
+end note
+@enduml

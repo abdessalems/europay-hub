@@ -1,0 +1,25 @@
+@startuml EuroPayHub-Seq-Registration
+' EuroPay Hub — Merchant registration (UC-001)
+autonumber
+actor Merchant
+participant "AuthController" as C
+participant "AuthService" as S
+database "MerchantRepository" as MR
+database "UserRepository" as UR
+participant "AuditListener" as AU
+
+Merchant -> C : POST /api/auth/register\n{legalName, email, password}
+C -> S : register(request)
+S -> UR : existsByEmail(email)
+S -> MR : existsByEmail(email)
+alt email already used
+  S --> C : EmailAlreadyInUseException
+  C --> Merchant : 409 EMAIL_ALREADY_IN_USE
+else unique
+  S -> MR : save(Merchant.register)
+  S -> UR : save(User + bcrypt(password))
+  S ->> AU : publish AuditEvent(MERCHANT_REGISTERED)
+  S --> C : RegisterResponse
+  C --> Merchant : 201 {merchantId, userId, role}
+end
+@enduml

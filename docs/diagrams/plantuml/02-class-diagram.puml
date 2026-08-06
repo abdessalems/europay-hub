@@ -1,0 +1,137 @@
+@startuml EuroPayHub-ClassDiagram
+' EuroPay Hub — Domain Class Diagram (tactical DDD)
+skinparam classAttributeIconSize 0
+hide empty members
+
+enum Role { ADMIN \n MERCHANT }
+enum MerchantStatus { ACTIVE \n SUSPENDED }
+enum ApiKeyStatus { ACTIVE \n REVOKED }
+enum OrderStatus { CREATED \n PAID \n CANCELLED \n EXPIRED }
+enum PaymentMethod { WERO \n BANCONTACT \n VISA \n MASTERCARD \n SEPA_INSTANT \n PAYPAL \n APPLE_PAY }
+enum PaymentStatus { CREATED \n PENDING \n AUTHORIZED \n SUCCESS \n FAILED \n EXPIRED \n CANCELLED \n REFUNDED \n SETTLED }
+enum WebhookStatus { PENDING \n DELIVERED \n FAILED }
+
+class Money <<value object>> {
+  - amountMinor : long
+  - currency : Currency
+  + ofMajor(BigDecimal, Currency) : Money
+  + isPositive() : boolean
+}
+
+class Merchant <<aggregate root>> {
+  - id : UUID
+  - legalName : String
+  - email : String
+  - status : MerchantStatus
+  + register(legalName, email) : Merchant
+}
+
+class User <<aggregate root>> {
+  - id : UUID
+  - merchantId : UUID
+  - email : String
+  - passwordHash : String
+  - role : Role
+  + registerMerchantUser(...) : User
+}
+
+class ApiKey <<aggregate root>> {
+  - id : UUID
+  - merchantId : UUID
+  - keyPrefix : String
+  - keyHash : String
+  - status : ApiKeyStatus
+  + isUsable(now) : boolean
+  + revoke()
+}
+
+class Customer <<aggregate root>> {
+  - id : UUID
+  - merchantId : UUID
+  - email : String
+  - fullName : String
+}
+
+class Order <<aggregate root>> {
+  - id : UUID
+  - merchantId : UUID
+  - customerId : UUID
+  - reference : String
+  - amount : Money
+  - status : OrderStatus
+  + cancel()
+  + markPaid()
+}
+
+class Payment <<aggregate root>> {
+  - id : UUID
+  - merchantId : UUID
+  - orderId : UUID
+  - method : PaymentMethod
+  - amount : Money
+  - status : PaymentStatus
+  - providerReference : String
+  + submit(ref) : void
+  + authorize() / markSucceeded()
+  + fail(reason) / refund() / cancel() / expire() / retry(ref)
+}
+
+class Refund <<aggregate root>> {
+  - id : UUID
+  - paymentId : UUID
+  - amount : Money
+  - reason : String
+}
+
+class WebhookEndpoint <<aggregate root>> {
+  - id : UUID
+  - merchantId : UUID
+  - url : String
+  - secret : String
+  - active : boolean
+}
+
+class WebhookEvent <<aggregate root>> {
+  - id : UUID
+  - eventType : String
+  - payload : String
+  - status : WebhookStatus
+  - attempts : int
+  - nextAttemptAt : Instant
+  + markDelivered(code)
+  + recordFailure(code, error)
+}
+
+class WebhookDelivery {
+  - id : UUID
+  - attempt : int
+  - statusCode : Integer
+  - success : boolean
+}
+
+class AuditLog {
+  - id : UUID
+  - merchantId : UUID
+  - actor : String
+  - action : String
+  - entityType : String
+}
+
+interface PaymentProvider <<port>> {
+  + supportedMethod() : PaymentMethod
+  + submit(Payment) : ProviderResult
+}
+
+Merchant "1" o-- "0..*" User
+Merchant "1" o-- "0..*" ApiKey
+Merchant "1" o-- "0..*" Customer
+Merchant "1" o-- "0..*" WebhookEndpoint
+Customer "1" -- "0..*" Order
+Order "1" -- "1" Payment
+Payment "1" o-- "0..*" Refund
+Payment ..> PaymentStatus
+Order ..> Money
+Payment ..> Money
+WebhookEvent "1" o-- "0..*" WebhookDelivery
+PaymentProvider ..> Payment : submits
+@enduml
