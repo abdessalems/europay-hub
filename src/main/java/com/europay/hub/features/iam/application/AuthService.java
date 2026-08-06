@@ -11,6 +11,9 @@ import com.europay.hub.features.iam.domain.UserRepository;
 import com.europay.hub.features.merchant.domain.Merchant;
 import com.europay.hub.features.merchant.domain.MerchantRepository;
 import com.europay.hub.security.jwt.JwtService;
+import com.europay.hub.shared.event.AuditEvent;
+import java.util.Map;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,13 +29,16 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final ApplicationEventPublisher events;
 
     public AuthService(MerchantRepository merchantRepository, UserRepository userRepository,
-                       PasswordEncoder passwordEncoder, JwtService jwtService) {
+                       PasswordEncoder passwordEncoder, JwtService jwtService,
+                       ApplicationEventPublisher events) {
         this.merchantRepository = merchantRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.events = events;
     }
 
     @Transactional
@@ -46,17 +52,22 @@ public class AuthService {
         User user = userRepository.save(
                 User.registerMerchantUser(merchant.id(), email, passwordEncoder.encode(request.password())));
 
+        events.publishEvent(new AuditEvent(merchant.id(), "user:" + user.id(), "MERCHANT_REGISTERED",
+                "MERCHANT", merchant.id(), Map.of("email", email)));
+
         return new RegisterResponse(
                 merchant.id(), user.id(), user.email(), user.role().name(), merchant.status().name());
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(InvalidCredentialsException::new);
         if (!user.isActive() || !passwordEncoder.matches(request.password(), user.passwordHash())) {
             throw new InvalidCredentialsException();
         }
+        events.publishEvent(new AuditEvent(user.merchantId(), "user:" + user.id(), "USER_LOGIN",
+                "USER", user.id(), Map.of("email", user.email())));
         return new AuthResponse(
                 jwtService.generateToken(user), "Bearer", jwtService.expirationSeconds(), user.role().name());
     }

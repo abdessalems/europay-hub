@@ -91,3 +91,9 @@ Given/When/Then per story. Each criterion is covered by an automated test (see `
 - **AC-023.2** Given a queued event, When the dispatcher runs, Then it POSTs an HMAC-signed payload and marks the event `DELIVERED` on a 2xx.
 - **AC-023.3** Given the endpoint returns a non-2xx, When delivery fails, Then the event is retried up to 3 times with backoff, then `FAILED`.
 - **AC-024.1** Given events exist, When I list them, Then I see each event's type, status, attempts and last status code.
+
+## US-025 / US-026 — Audit & Dashboard
+
+- **AC-025.1** Given I log in, When I view the audit log, Then a `USER_LOGIN` entry exists; other actions (order/payment/API-key/webhook) are recorded too.
+- **AC-025.2** Audit entries are scoped to my merchant only.
+- **AC-026.1** Given I have orders and payments, When I GET `/api/dashboard`, Then I receive revenue, order/payment counts, success rate, and the by-method / by-status / revenue-by-day series.

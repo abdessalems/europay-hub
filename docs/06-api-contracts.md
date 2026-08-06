@@ -186,3 +186,20 @@ Header: `X-EuroPay-Signature: sha256=<hmac>` (HMAC-SHA256 of the raw body with t
             "method": "WERO", "providerReference": "WERO-…" } }
 ```
 Event types: `payment.created`, `payment.pending`, `payment.authorized`, `payment.success`, `payment.failed`, `payment.refunded`.
+
+---
+
+## Dashboard & Audit — *requires `bearer-jwt`, role MERCHANT*
+
+### GET /api/dashboard
+`200` data:
+```json
+{ "revenue": 466.99, "orderCount": 11, "paymentCount": 9, "pendingCount": 0, "successRate": 33,
+  "paymentsByMethod": [ { "key": "VISA", "count": 2 } ],
+  "paymentsByStatus": [ { "key": "SUCCESS", "count": 3 } ],
+  "revenueByDay": [ { "date": "2026-08-01", "amount": 129.99 } ] }
+```
+
+### GET /api/audit-logs?page=0&size=20
+`200` paginated: `{ id, actor, action, entityType, entityId, metadata, createdAt }`, newest first.
+Actions include `MERCHANT_REGISTERED`, `USER_LOGIN`, `ORDER_CREATED`/`ORDER_CANCELLED`, `API_KEY_CREATED`/`API_KEY_REVOKED`, `WEBHOOK_CONFIGURED`, and `PAYMENT_*`.

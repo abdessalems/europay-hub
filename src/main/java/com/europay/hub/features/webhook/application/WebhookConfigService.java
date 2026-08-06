@@ -4,10 +4,13 @@ import com.europay.hub.features.webhook.application.dto.ConfigureWebhookRequest;
 import com.europay.hub.features.webhook.application.dto.WebhookEndpointResponse;
 import com.europay.hub.features.webhook.domain.WebhookEndpoint;
 import com.europay.hub.features.webhook.domain.WebhookEndpointRepository;
+import com.europay.hub.shared.event.AuditEvent;
 import com.europay.hub.shared.exception.ResourceNotFoundException;
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.Map;
 import java.util.UUID;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,9 +21,11 @@ public class WebhookConfigService {
     private static final SecureRandom RANDOM = new SecureRandom();
 
     private final WebhookEndpointRepository repository;
+    private final ApplicationEventPublisher events;
 
-    public WebhookConfigService(WebhookEndpointRepository repository) {
+    public WebhookConfigService(WebhookEndpointRepository repository, ApplicationEventPublisher events) {
         this.repository = repository;
+        this.events = events;
     }
 
     @Transactional
@@ -35,7 +40,10 @@ public class WebhookConfigService {
                 })
                 .orElseGet(() -> WebhookEndpoint.register(merchantId, request.url(), secret));
 
-        return WebhookEndpointResponse.withSecret(repository.save(endpoint));
+        WebhookEndpoint saved = repository.save(endpoint);
+        events.publishEvent(new AuditEvent(merchantId, "merchant:" + merchantId, "WEBHOOK_CONFIGURED",
+                "WEBHOOK_ENDPOINT", saved.id(), Map.of("url", saved.url())));
+        return WebhookEndpointResponse.withSecret(saved);
     }
 
     @Transactional(readOnly = true)

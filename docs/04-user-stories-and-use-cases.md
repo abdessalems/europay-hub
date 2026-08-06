@@ -140,6 +140,16 @@ Stories are `US-nnn`; each maps to acceptance criteria (doc 05) and automated te
 **As a** merchant **I want to** see my webhook events and their delivery status **So that** I can debug integrations.
 - Rules: BR-062 · Endpoint: `GET /api/webhooks/events`
 
+## Phase 6 — Audit & Dashboard
+
+### US-025 — View the audit log
+**As a** merchant **I want to** see a log of important actions **So that** I can review activity for security and support.
+- Rules: BR-026, BR-071 · Endpoint: `GET /api/audit-logs`
+
+### US-026 — Dashboard metrics
+**As a** merchant **I want** server-computed KPIs and chart data **So that** my console loads fast and consistently.
+- Rules: BR-070, BR-071 · Endpoint: `GET /api/dashboard`
+
 ---
 
 ## Use Case — UC-001: Register a merchant

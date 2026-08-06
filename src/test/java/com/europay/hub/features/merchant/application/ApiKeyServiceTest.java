@@ -20,7 +20,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 class ApiKeyServiceTest {
 
     private final ApiKeyRepository repository = new InMemoryApiKeyRepository();
-    private final ApiKeyService service = new ApiKeyService(repository, new BCryptPasswordEncoder());
+    private final ApiKeyService service = new ApiKeyService(repository, new BCryptPasswordEncoder(), event -> { });
 
     @Test
     @DisplayName("creates a key, returns the secret once, and stores only a hash + prefix")

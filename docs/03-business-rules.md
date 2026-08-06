@@ -67,9 +67,16 @@ Numbered, testable rules. Each rule links to the code/test that enforces it. New
 | BR-063 | Delivery is successful only on a 2xx response; otherwise it retries. | `HttpWebhookSender`, `WebhookEvent.markDelivered` |
 | BR-064 | The signing secret is shown once (at configure time); otherwise masked. | `WebhookEndpointResponse` |
 
+## Audit & Dashboard (Phase 6)
+
+| ID | Rule | Enforced by |
+|---|---|---|
+| BR-026 | Every important action (register, login, API-key create/revoke, order create/cancel, payment lifecycle, webhook config) is recorded in an append-only audit log. | `AuditEventListener`, `AuditService` |
+| BR-070 | Dashboard metrics are computed server-side with SQL aggregates — the read side never loads whole tables. | `DashboardMetricsJdbcAdapter` |
+| BR-071 | Audit and dashboard data are scoped to the calling merchant. | `merchant_id` filters |
+
 ## Deferred (enforced in later phases)
 
 | ID | Rule | Phase |
 |---|---|---|
 | BR-025 | Payment amount inherits the order's validated amount (max + EUR already enforced at order creation, BR-030/031). | 3 |
-| BR-026 | Every important action is audited. | 6 |

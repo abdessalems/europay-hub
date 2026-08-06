@@ -124,12 +124,8 @@ Interactive OpenAPI docs are served at `/swagger-ui.html` (with an **Authorize**
 | PUT | `/api/webhooks/endpoint` | Configure webhook (URL + secret) | ✅ |
 | GET | `/api/webhooks/endpoint` · `/events` | View endpoint / list delivery events | ✅ |
 
-Planned:
-
-| Method | Path | Description |
-|---|---|---|
-| GET | `/api/transactions` | Transaction history (paged) |
-| GET | `/api/dashboard` | Merchant dashboard metrics |
+| GET | `/api/dashboard` | Server-computed merchant metrics | ✅ |
+| GET | `/api/audit-logs` | Append-only audit log (paged) | ✅ |
 
 ## 🗺 Roadmap
 
@@ -141,8 +137,8 @@ Planned:
 | 3 | Payment core (state machine, mock providers, idempotency, API-key auth) | ✅ |
 | 4 | Payment lifecycle (approve, refund, cancel, retry, expiry job) | ✅ |
 | 5 | Webhooks (outbox, HMAC signing, 3× retry with backoff, delivery logs) | ✅ |
-| 6 | Audit & Dashboard | ⬜ |
-| 7 | Hardening & full documentation | ⬜ |
+| 6 | Audit log + server-computed dashboard metrics | ✅ |
+| 7 | Hardening & full documentation | ✅ |
 
 ## 🔮 Future Improvements
 

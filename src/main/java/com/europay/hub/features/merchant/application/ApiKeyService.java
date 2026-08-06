@@ -5,13 +5,16 @@ import com.europay.hub.features.merchant.application.dto.ApiKeySummaryResponse;
 import com.europay.hub.features.merchant.application.dto.CreateApiKeyRequest;
 import com.europay.hub.features.merchant.domain.ApiKey;
 import com.europay.hub.features.merchant.domain.ApiKeyRepository;
+import com.europay.hub.shared.event.AuditEvent;
 import com.europay.hub.shared.exception.ResourceNotFoundException;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,10 +34,13 @@ public class ApiKeyService {
 
     private final ApiKeyRepository apiKeyRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ApplicationEventPublisher events;
 
-    public ApiKeyService(ApiKeyRepository apiKeyRepository, PasswordEncoder passwordEncoder) {
+    public ApiKeyService(ApiKeyRepository apiKeyRepository, PasswordEncoder passwordEncoder,
+                         ApplicationEventPublisher events) {
         this.apiKeyRepository = apiKeyRepository;
         this.passwordEncoder = passwordEncoder;
+        this.events = events;
     }
 
     @Transactional
@@ -45,6 +51,8 @@ public class ApiKeyService {
 
         ApiKey saved = apiKeyRepository.save(
                 ApiKey.issue(merchantId, request.name(), prefix, hash, request.expiresAt()));
+        events.publishEvent(new AuditEvent(merchantId, "merchant:" + merchantId, "API_KEY_CREATED",
+                "API_KEY", saved.id(), Map.of("name", request.name())));
         return ApiKeyCreatedResponse.from(saved, secret);
     }
 
@@ -62,6 +70,8 @@ public class ApiKeyService {
                 .orElseThrow(() -> new ResourceNotFoundException("API key", keyId));
         key.revoke();
         apiKeyRepository.save(key);
+        events.publishEvent(new AuditEvent(merchantId, "merchant:" + merchantId, "API_KEY_REVOKED",
+                "API_KEY", keyId, Map.of()));
     }
 
     /**
