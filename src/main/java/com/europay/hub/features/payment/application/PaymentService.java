@@ -12,6 +12,7 @@ import com.europay.hub.features.payment.domain.PaymentRepository;
 import com.europay.hub.features.payment.domain.PaymentStatus;
 import com.europay.hub.features.payment.domain.Refund;
 import com.europay.hub.features.payment.domain.RefundRepository;
+import com.europay.hub.features.payment.domain.event.PaymentDomainEvent;
 import com.europay.hub.features.payment.domain.port.PaymentProviderRegistry;
 import com.europay.hub.features.payment.domain.port.ProviderResult;
 import com.europay.hub.shared.exception.BusinessRuleViolationException;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,18 +44,33 @@ public class PaymentService {
     private final RefundRepository refundRepository;
     private final PaymentProviderRegistry providerRegistry;
     private final IdempotencyStore idempotencyStore;
+    private final ApplicationEventPublisher events;
     private final long expiryMinutes;
 
     public PaymentService(PaymentRepository paymentRepository, OrderRepository orderRepository,
                           RefundRepository refundRepository, PaymentProviderRegistry providerRegistry,
-                          IdempotencyStore idempotencyStore,
+                          IdempotencyStore idempotencyStore, ApplicationEventPublisher events,
                           @Value("${europay.payment.expiry-minutes}") long expiryMinutes) {
         this.paymentRepository = paymentRepository;
         this.orderRepository = orderRepository;
         this.refundRepository = refundRepository;
         this.providerRegistry = providerRegistry;
         this.idempotencyStore = idempotencyStore;
+        this.events = events;
         this.expiryMinutes = expiryMinutes;
+    }
+
+    private void publish(Payment payment, String eventType) {
+        events.publishEvent(PaymentDomainEvent.of(payment, eventType));
+    }
+
+    private void publishOutcome(Payment payment) {
+        switch (payment.status()) {
+            case PENDING -> publish(payment, "payment.pending");
+            case AUTHORIZED -> publish(payment, "payment.authorized");
+            case FAILED -> publish(payment, "payment.failed");
+            default -> { /* no event */ }
+        }
     }
 
     @Transactional
@@ -81,6 +98,8 @@ public class PaymentService {
         applyOutcome(payment, result);
 
         Payment saved = paymentRepository.save(payment);
+        publish(saved, "payment.created");
+        publishOutcome(saved);
         if (idempotencyKey != null && !idempotencyKey.isBlank()) {
             idempotencyStore.save(new IdempotencyRecord(merchantId, idempotencyKey, requestHash, saved.id()));
         }
@@ -94,6 +113,7 @@ public class PaymentService {
         payment.markSucceeded();
         Payment saved = paymentRepository.save(payment);
         markOrderPaid(saved.orderId());
+        publish(saved, "payment.success");
         return PaymentResponse.from(saved);
     }
 
@@ -113,7 +133,9 @@ public class PaymentService {
         }
         payment.refund();
         refundRepository.save(Refund.create(payment.id(), merchantId, payment.amount(), reason));
-        return PaymentResponse.from(paymentRepository.save(payment));
+        Payment saved = paymentRepository.save(payment);
+        publish(saved, "payment.refunded");
+        return PaymentResponse.from(saved);
     }
 
     @Transactional
@@ -126,7 +148,9 @@ public class PaymentService {
         ProviderResult result = providerRegistry.forMethod(payment.method()).submit(payment);
         payment.retry(result.providerReference());
         applyOutcome(payment, result);
-        return PaymentResponse.from(paymentRepository.save(payment));
+        Payment saved = paymentRepository.save(payment);
+        publishOutcome(saved);
+        return PaymentResponse.from(saved);
     }
 
     /** Expire PENDING payments older than the configured window. Driven by a scheduler. */

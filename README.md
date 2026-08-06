@@ -121,12 +121,13 @@ Interactive OpenAPI docs are served at `/swagger-ui.html` (with an **Authorize**
 | POST | `/api/payments/{id}/approve` | Approve → SUCCESS (marks order paid) | ✅ |
 | POST | `/api/payments/{id}/refund` | Refund a successful payment | ✅ |
 | POST | `/api/payments/{id}/cancel` · `/retry` | Cancel / retry a payment | ✅ |
+| PUT | `/api/webhooks/endpoint` | Configure webhook (URL + secret) | ✅ |
+| GET | `/api/webhooks/endpoint` · `/events` | View endpoint / list delivery events | ✅ |
 
 Planned:
 
 | Method | Path | Description |
 |---|---|---|
-| POST | `/api/payments/webhook` | Provider callback |
 | GET | `/api/transactions` | Transaction history (paged) |
 | GET | `/api/dashboard` | Merchant dashboard metrics |
 
@@ -139,7 +140,7 @@ Planned:
 | 2 | Orders & Customers (pagination, order lifecycle) | ✅ |
 | 3 | Payment core (state machine, mock providers, idempotency, API-key auth) | ✅ |
 | 4 | Payment lifecycle (approve, refund, cancel, retry, expiry job) | ✅ |
-| 5 | Webhooks (outbox, signing, retries) | ⬜ |
+| 5 | Webhooks (outbox, HMAC signing, 3× retry with backoff, delivery logs) | ✅ |
 | 6 | Audit & Dashboard | ⬜ |
 | 7 | Hardening & full documentation | ⬜ |
 

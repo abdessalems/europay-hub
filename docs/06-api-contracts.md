@@ -153,3 +153,36 @@ Body (optional): `{ "reason": "customer request" }`. `SUCCESS`/`SETTLED` → `RE
 
 ### POST /api/payments/{id}/retry
 `FAILED` → re-submitted to the provider. `409 RETRY_NOT_ALLOWED` otherwise.
+
+---
+
+## Webhooks — *requires `bearer-jwt`, role MERCHANT*
+
+### PUT /api/webhooks/endpoint
+Request (`secret` optional — generated if omitted):
+```json
+{ "url": "https://my-shop.eu/webhooks/europay", "secret": null }
+```
+`200` data (secret shown **once**):
+```json
+{ "url": "https://my-shop.eu/webhooks/europay", "active": true, "secret": "whsec_S9ZX8EL8…", "createdAt": "…" }
+```
+
+### GET /api/webhooks/endpoint
+`200` with the secret **masked** (`whsec_S9ZX8EL8••••`); `404` if not configured.
+
+### DELETE /api/webhooks/endpoint
+`204` — disables delivery.
+
+### GET /api/webhooks/events?page=0&size=20
+`200` paginated events: `{ id, eventType, status, attempts, lastStatusCode, paymentId, createdAt }`.
+
+### Delivered payload (POSTed to the merchant's URL)
+Header: `X-EuroPay-Signature: sha256=<hmac>` (HMAC-SHA256 of the raw body with the endpoint secret).
+```json
+{ "type": "payment.success", "createdAt": "…",
+  "data": { "paymentId": "…", "orderId": "…", "merchantId": "…",
+            "amount": 25.00, "currency": "EUR", "status": "SUCCESS",
+            "method": "WERO", "providerReference": "WERO-…" } }
+```
+Event types: `payment.created`, `payment.pending`, `payment.authorized`, `payment.success`, `payment.failed`, `payment.refunded`.

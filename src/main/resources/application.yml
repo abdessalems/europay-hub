@@ -35,6 +35,9 @@ europay:
     expiry-minutes: 15
   webhook:
     max-retries: 3
+    dispatch-interval-ms: 10000
+  cors:
+    allowed-origins: http://localhost:5173,http://localhost:4173
 
 management:
   endpoints:

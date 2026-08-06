@@ -56,10 +56,20 @@ Numbered, testable rules. Each rule links to the code/test that enforces it. New
 | BR-051 | Only a `FAILED` payment can be retried. | `PaymentService.retry` (`RETRY_NOT_ALLOWED`) |
 | BR-052 | A payment can be cancelled before completion (`CREATED`/`PENDING`/`AUTHORIZED`). | `Payment.cancel` |
 
+## Webhooks (Phase 5)
+
+| ID | Rule | Enforced by |
+|---|---|---|
+| BR-024 | A webhook is retried at most 3 times (then `FAILED`), with exponential backoff. | `WebhookEvent.recordFailure`, `max_attempts` |
+| BR-060 | Webhook events are written to an outbox **in the same transaction** as the payment change, so they are never lost. | `PaymentEventOutboxListener` (in-transaction `@EventListener`) |
+| BR-061 | Each webhook is HMAC-SHA256 signed with the merchant's secret (`X-EuroPay-Signature: sha256=…`). | `HttpWebhookSender` |
+| BR-062 | Every delivery attempt is logged. | `WebhookDelivery`, `webhook_delivery` |
+| BR-063 | Delivery is successful only on a 2xx response; otherwise it retries. | `HttpWebhookSender`, `WebhookEvent.markDelivered` |
+| BR-064 | The signing secret is shown once (at configure time); otherwise masked. | `WebhookEndpointResponse` |
+
 ## Deferred (enforced in later phases)
 
 | ID | Rule | Phase |
 |---|---|---|
-| BR-024 | Webhooks are retried at most 3 times. | 5 |
 | BR-025 | Payment amount inherits the order's validated amount (max + EUR already enforced at order creation, BR-030/031). | 3 |
 | BR-026 | Every important action is audited. | 6 |

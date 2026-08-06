@@ -126,6 +126,20 @@ Stories are `US-nnn`; each maps to acceptance criteria (doc 05) and automated te
 **As the** platform **I want to** expire stale pending payments **So that** they cannot be approved after their window.
 - Rules: BR-023 · Driver: `PaymentExpiryScheduler` (`@Scheduled`)
 
+## Phase 5 — Webhooks
+
+### US-022 — Configure a webhook
+**As a** merchant **I want to** register a callback URL + secret **So that** my systems are notified of payment events.
+- Rules: BR-061, BR-064 · Endpoint: `PUT /api/webhooks/endpoint`
+
+### US-023 — Receive event notifications (system)
+**As the** platform **I want to** deliver signed events reliably with retries **So that** merchants never miss an update.
+- Rules: BR-024, BR-060, BR-061, BR-063 · Driver: `WebhookDispatchScheduler`
+
+### US-024 — Inspect delivery status
+**As a** merchant **I want to** see my webhook events and their delivery status **So that** I can debug integrations.
+- Rules: BR-062 · Endpoint: `GET /api/webhooks/events`
+
 ---
 
 ## Use Case — UC-001: Register a merchant

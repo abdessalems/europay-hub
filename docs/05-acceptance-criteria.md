@@ -83,3 +83,11 @@ Given/When/Then per story. Each criterion is covered by an automated test (see `
 - **AC-019.1** Given a `PENDING` payment, When I cancel it, Then it becomes `CANCELLED`.
 - **AC-020.1** Given a payment that is not `FAILED`, When I retry it, Then I receive `409 RETRY_NOT_ALLOWED`.
 - **AC-021.1** Given a `PENDING` payment older than the expiry window, When the scheduler runs, Then the payment becomes `EXPIRED` and can no longer be approved.
+
+## US-022…024 — Webhooks
+
+- **AC-022.1** Given I configure a webhook, When I PUT the URL, Then I receive `200` and the signing secret **once**; a later GET returns it masked.
+- **AC-023.1** Given an active endpoint, When a payment changes state, Then a webhook event is queued in the outbox in the same transaction.
+- **AC-023.2** Given a queued event, When the dispatcher runs, Then it POSTs an HMAC-signed payload and marks the event `DELIVERED` on a 2xx.
+- **AC-023.3** Given the endpoint returns a non-2xx, When delivery fails, Then the event is retried up to 3 times with backoff, then `FAILED`.
+- **AC-024.1** Given events exist, When I list them, Then I see each event's type, status, attempts and last status code.
