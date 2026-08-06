@@ -4,6 +4,7 @@ import { useAuth } from "@/auth/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { BrandMark } from "@/components/BrandMark";
 
 export function LoginPage() {
   const { login } = useAuth();
@@ -30,8 +31,8 @@ export function LoginPage() {
   return (
     <div className="brand-gradient flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-2xl shadow-primary/10">
-        <div className="mb-8 flex items-center gap-2 text-xl font-extrabold">
-          <span className="text-2xl">💶</span> EuroPay<span className="text-primary">Hub</span>
+        <div className="mb-8 flex items-center gap-2.5 text-xl font-extrabold">
+          <BrandMark className="size-10" /> EuroPay<span className="text-primary">Hub</span>
         </div>
         <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
         <p className="mt-1 text-sm text-muted-foreground">Sign in to your merchant console.</p>

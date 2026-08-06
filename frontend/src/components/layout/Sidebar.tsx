@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { LayoutDashboard, ShoppingCart, CreditCard, KeyRound, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { BrandMark } from "@/components/BrandMark";
 
 const nav = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
@@ -13,8 +14,8 @@ const nav = [
 export function Sidebar() {
   return (
     <aside className="hidden md:flex w-64 shrink-0 flex-col bg-sidebar text-sidebar-foreground">
-      <div className="flex h-16 items-center gap-2 px-6 text-lg font-extrabold text-white">
-        <span className="text-2xl">💶</span>
+      <div className="flex h-16 items-center gap-2.5 px-5 text-lg font-extrabold text-white">
+        <BrandMark className="size-9 shrink-0" />
         <span>EuroPay<span className="text-primary"> Hub</span></span>
       </div>
       <nav className="flex-1 space-y-1 px-3 py-4">

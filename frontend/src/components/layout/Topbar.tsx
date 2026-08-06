@@ -5,6 +5,7 @@ import { http, unwrap } from "@/lib/api";
 import type { Merchant } from "@/lib/types";
 import { useAuth } from "@/auth/AuthContext";
 import { Button } from "@/components/ui/button";
+import { BrandMark } from "@/components/BrandMark";
 
 function initials(name?: string) {
   if (!name) return "··";
@@ -30,7 +31,7 @@ export function Topbar() {
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-border bg-background/70 px-6 backdrop-blur-md">
       <div className="flex items-center gap-2 md:hidden text-base font-extrabold">
-        <span className="text-xl">💶</span> EuroPay<span className="text-primary">Hub</span>
+        <BrandMark className="size-7" /> EuroPay<span className="text-primary">Hub</span>
       </div>
       <div className="hidden md:block">
         <p className="text-sm font-semibold leading-tight">{merchant?.legalName ?? "Loading…"}</p>
