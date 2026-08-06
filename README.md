@@ -88,6 +88,14 @@ docker compose -f docker/docker-compose.yml --profile full up --build
 
 > **Ports.** The database is published on host **5433** (→ container 5432) to avoid clashing with a locally installed PostgreSQL. The app listens on **8080**; override with `SERVER_PORT=8081 ./mvnw spring-boot:run` if 8080 is taken.
 
+### Run the dashboard (frontend)
+```bash
+cd frontend
+npm install
+npm run dev            # http://localhost:5173  (API base via VITE_API_URL, default :8081)
+```
+The backend enables CORS for `http://localhost:5173`. See screenshots below.
+
 ### Verify
 - Service info … `GET http://localhost:8080/api/system/info`
 - Health … `GET http://localhost:8080/actuator/health`
@@ -142,11 +150,36 @@ Interactive OpenAPI docs are served at `/swagger-ui.html` (with an **Authorize**
 
 ## 🔮 Future Improvements
 
-Redis (idempotency cache), RabbitMQ (async event bus), settlement/reconciliation batches, multi-currency, 3-D Secure simulation, rate limiting, and a merchant dashboard UI.
+Redis (idempotency cache), RabbitMQ (async event bus), settlement/reconciliation batches, multi-currency, 3-D Secure simulation, rate limiting, and partial refunds.
 
 ## 📸 Screenshots
 
-_Placeholders — added as the dashboard and Swagger UI come online._
+The **EuroPay Dashboard** (`/frontend`) — React + Vite + Tailwind, consuming the live API.
+
+### Login & Dashboard
+| Login | Dashboard |
+|---|---|
+| ![Login](screenshots/login.png) | ![Dashboard](screenshots/DASHBOARD1.png) |
+
+Server-computed KPIs (revenue, orders, payments, success rate), a 14-day revenue chart, and a payment-methods donut:
+
+![Dashboard charts](screenshots/DASHBOARD2.png)
+![Dashboard recent activity](screenshots/DASHBOARD3.png)
+
+### Dark mode
+![Dashboard — dark mode](screenshots/DASHBOARDNIGHTMODE.png)
+
+### Orders & Payments
+| Orders (create + pay) | Payments (approve / refund / cancel / retry) |
+|---|---|
+| ![Orders](screenshots/ORDERS.png) | ![Payments](screenshots/PAYMENTS.png) |
+
+All seven methods render as branded chips: **Visa, Mastercard, Bancontact, Wero, SEPA Instant, PayPal, Apple Pay**.
+
+### Webhooks, API Keys & Audit log
+| Webhooks | API Keys | Audit log |
+|---|---|---|
+| ![Webhooks](screenshots/WEBHOOKS.png) | ![API Keys](screenshots/APIKeys.png) | ![Audit log](screenshots/auditlog.png) |
 
 ## 📄 License
 
