@@ -11,9 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageHeader } from "@/components/PageHeader";
-import { MethodLogo } from "@/components/MethodLogo";
-
-const METHODS: PaymentMethod[] = ["WERO", "BANCONTACT", "VISA"];
+import { MethodPicker } from "@/components/MethodPicker";
 
 export function OrdersPage() {
   const qc = useQueryClient();
@@ -99,16 +97,10 @@ export function OrdersPage() {
                 <TD className="text-muted-foreground">{formatDate(o.createdAt)}</TD>
                 <TD className="text-right">
                   {o.status === "CREATED" ? (
-                    <div className="inline-flex items-center gap-1.5">
-                      {METHODS.map((m) => (
-                        <button key={m} type="button" title={`Pay with ${m}`}
-                          disabled={pay.isPending}
-                          className="transition hover:opacity-80 disabled:opacity-50"
-                          onClick={() => pay.mutate({ orderId: o.id, paymentMethod: m })}>
-                          <MethodLogo method={m} />
-                        </button>
-                      ))}
-                    </div>
+                    <MethodPicker
+                      disabled={pay.isPending}
+                      onPick={(m) => pay.mutate({ orderId: o.id, paymentMethod: m })}
+                    />
                   ) : <span className="text-xs text-muted-foreground">—</span>}
                 </TD>
               </TR>

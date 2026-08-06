@@ -45,7 +45,11 @@ export function statusBreakdown(payments: Payment[]) {
 }
 
 export const METHOD_COLORS: Record<string, string> = {
-  VISA: "hsl(347 77% 52%)",
-  BANCONTACT: "hsl(210 90% 56%)",
-  WERO: "hsl(38 92% 55%)",
+  VISA: "#1434CB",
+  MASTERCARD: "#EB001B",
+  BANCONTACT: "#004E9E",
+  WERO: "#E5007D",
+  SEPA_INSTANT: "#0E9488",
+  PAYPAL: "#009CDE",
+  APPLE_PAY: "#334155",
 };

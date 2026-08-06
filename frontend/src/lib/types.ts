@@ -59,7 +59,14 @@ export interface Customer {
   createdAt: string;
 }
 
-export type PaymentMethod = "WERO" | "BANCONTACT" | "VISA";
+export type PaymentMethod =
+  | "WERO"
+  | "BANCONTACT"
+  | "VISA"
+  | "MASTERCARD"
+  | "SEPA_INSTANT"
+  | "PAYPAL"
+  | "APPLE_PAY";
 
 export interface Payment {
   id: string;

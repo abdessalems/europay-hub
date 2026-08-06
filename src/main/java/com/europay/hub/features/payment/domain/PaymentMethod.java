@@ -1,11 +1,15 @@
 package com.europay.hub.features.payment.domain;
 
 /**
- * Supported payment methods (mock providers). New methods (Mastercard, SEPA Instant,
- * PayPal, Apple Pay) plug in by adding an enum value and a matching provider.
+ * Supported payment methods (mock providers). Adding a method is just a new enum value plus a
+ * matching {@code PaymentProvider} bean — the factory registers it automatically (Open/Closed).
  */
 public enum PaymentMethod {
     WERO,
     BANCONTACT,
-    VISA
+    VISA,
+    MASTERCARD,
+    SEPA_INSTANT,
+    PAYPAL,
+    APPLE_PAY
 }
