@@ -56,3 +56,21 @@ Given/When/Then per story. Each criterion is covered by an automated test (see `
 
 - **AC-011.1** Given I created orders, When I list customers, Then the customers appear (paginated), and a customer not mine returns `404`.
 - **AC-012.1** Given a customer with orders, When I GET their orders, Then I receive that customer's orders (paginated).
+
+## US-013 — Create a payment
+
+- **AC-013.1** Given a `CREATED` order, When I pay with `WERO`, Then I receive `201` with status `PENDING` and a `providerReference` starting `WERO-`.
+- **AC-013.2** Given a `CREATED` order, When I pay with `VISA`, Then the payment is `AUTHORIZED` immediately (ref `VISA-`).
+- **AC-013.3** Given no JWT and no API key, When I create a payment, Then I receive `401`.
+- **AC-013.4** Given a valid `X-API-Key`, When I create a payment, Then it succeeds (server-to-server auth).
+- **AC-013.5** Given an order that is not `CREATED`, When I pay it, Then I receive `409 ORDER_NOT_PAYABLE`.
+
+## US-014 — Idempotency
+
+- **AC-014.1** Given I create a payment with `Idempotency-Key: K`, When I repeat the identical request with `K`, Then I receive the **same** payment (no duplicate).
+- **AC-014.2** Given key `K` was used, When I send a different body with `K`, Then I receive `409 IDEMPOTENCY_KEY_REUSED`.
+
+## US-015 / US-016 — Status & list
+
+- **AC-015.1** Given one of my payments, When I GET it, Then I receive its status and provider reference; a payment not mine returns `404`.
+- **AC-016.1** Given I have payments, When I list them, Then I receive a paginated envelope, newest first.

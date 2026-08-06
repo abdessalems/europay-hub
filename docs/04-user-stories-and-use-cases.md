@@ -82,6 +82,28 @@ Stories are `US-nnn`; each maps to acceptance criteria (doc 05) and automated te
 **As an** authenticated merchant **I want to** see a customer's orders **So that** I understand their activity (precursor to payment history).
 - Endpoint: `GET /api/customers/{id}/orders`
 
+## Phase 3 — Payments
+
+### US-013 — Create a payment
+**As a** merchant (via dashboard JWT or server API key)
+**I want to** create a payment for an order using a method (Wero/Bancontact/Visa)
+**So that** funds can be collected.
+- Rules: BR-040, BR-043, BR-044, BR-045 · Endpoint: `POST /api/payments`
+
+### US-014 — Idempotent payment creation
+**As an** integrator retrying a request
+**I want** the same `Idempotency-Key` to not create a duplicate payment
+**So that** the customer is never charged twice.
+- Rules: BR-041 · Header: `Idempotency-Key`
+
+### US-015 — Check payment status
+**As a** merchant **I want to** query a payment **So that** I can see its state and provider reference.
+- Endpoint: `GET /api/payments/{id}`
+
+### US-016 — List payments
+**As a** merchant **I want to** list my payments (paginated) **So that** I can reconcile.
+- Endpoint: `GET /api/payments?page=&size=`
+
 ---
 
 ## Use Case — UC-001: Register a merchant
@@ -113,3 +135,13 @@ Stories are `US-nnn`; each maps to acceptance criteria (doc 05) and automated te
 | **Main flow** | 1. Merchant submits customer (email, name) + amount (+ optional reference). 2. System validates amount (positive, ≤ max, EUR). 3. System finds-or-creates the customer by (merchant, email). 4. System resolves a unique reference. 5. System creates the order (CREATED) and returns it. |
 | **Postcondition** | Order exists in `CREATED`; customer exists. |
 | **Alternatives** | 2a. Amount > max → `409 AMOUNT_EXCEEDS_MAX`. 4a. Duplicate reference → `409 REFERENCE_TAKEN`. 1a. Invalid body → `400 VALIDATION_ERROR`. |
+
+## Use Case — UC-004: Create a payment
+
+| | |
+|---|---|
+| **Actor** | Merchant (JWT) or merchant server (API key) |
+| **Precondition** | Order exists, belongs to caller, status `CREATED` |
+| **Main flow** | 1. Caller submits `orderId` + `paymentMethod` (+ optional `Idempotency-Key`). 2. If the key was seen with the same body, return the original payment. 3. System creates the payment (`CREATED`) with the order's amount. 4. System routes to the method's provider (Strategy) and submits. 5. System applies the outcome: PENDING stays pending; AUTHORIZED → authorize; DECLINED → fail. 6. System stores the idempotency record and returns the payment. |
+| **Postcondition** | Payment persisted in `PENDING`/`AUTHORIZED`/`FAILED`. |
+| **Alternatives** | 1a. Order not `CREATED` → `409 ORDER_NOT_PAYABLE`. 2a. Key reused with different body → `409 IDEMPOTENCY_KEY_REUSED`. No credential → `401`. |

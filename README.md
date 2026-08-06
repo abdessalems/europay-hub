@@ -116,13 +116,13 @@ Interactive OpenAPI docs are served at `/swagger-ui.html` (with an **Authorize**
 | POST | `/api/orders/{id}/cancel` | Cancel an order | ✅ |
 | GET | `/api/customers` · `/api/customers/{id}` | List / view customers | ✅ |
 | GET | `/api/customers/{id}/orders` | Customer order history | ✅ |
+| POST | `/api/payments` | Create a payment (Idempotency-Key aware; JWT or API key) | ✅ |
+| GET | `/api/payments/{id}` · `/api/payments` | Payment status / list (paginated) | ✅ |
 
 Planned:
 
 | Method | Path | Description |
 |---|---|---|
-| POST | `/api/payments` | Create a payment (Idempotency-Key aware) |
-| GET | `/api/payments/{id}` | Payment status |
 | POST | `/api/payments/{id}/refund` | Refund a successful payment |
 | POST | `/api/payments/webhook` | Provider callback |
 | GET | `/api/transactions` | Transaction history (paged) |
@@ -135,7 +135,7 @@ Planned:
 | 0 | Skeleton, shared kernel, CI, ArchUnit, FA docs foundation | ✅ |
 | 1 | IAM & Merchant (JWT, roles, hashed API keys) | ✅ |
 | 2 | Orders & Customers (pagination, order lifecycle) | ✅ |
-| 3 | Payment core (state machine, mock providers, idempotency) | ⬜ |
+| 3 | Payment core (state machine, mock providers, idempotency, API-key auth) | ✅ |
 | 4 | Payment lifecycle (authorize, refund, cancel, retry, expiry) | ⬜ |
 | 5 | Webhooks (outbox, signing, retries) | ⬜ |
 | 6 | Audit & Dashboard | ⬜ |

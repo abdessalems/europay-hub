@@ -35,12 +35,21 @@ Numbered, testable rules. Each rule links to the code/test that enforces it. New
 | BR-034 | Only a `CREATED` order may be cancelled. | `Order.cancel` (HTTP 409 otherwise) |
 | BR-035 | A merchant can only access its own orders and customers. | ownership filters in `OrderService` / `CustomerService` (404 otherwise) |
 
+## Payments (Phase 3)
+
+| ID | Rule | Enforced by |
+|---|---|---|
+| BR-040 | A payment can be created only for a `CREATED` order owned by the merchant. | `PaymentService.create` (404 / `ORDER_NOT_PAYABLE`) |
+| BR-041 | A duplicate request with the same Idempotency-Key returns the original payment; reuse with a different body → 409. | `PaymentService.replayIfPresent`, `uq_idempotency_merchant_key` |
+| BR-042 | Payment state changes must follow the state machine; illegal transitions → 409. | `PaymentStatus`, `Payment.transitionTo` |
+| BR-043 | Each method routes to its provider via the registry (Strategy). Visa authorizes immediately; Wero/Bancontact pend. | `PaymentProviderFactory`, mock providers |
+| BR-044 | Payment endpoints accept either a JWT (role MERCHANT) or an API key (`X-API-Key`). | `ApiKeyAuthenticationFilter`, `SecurityConfig` |
+| BR-045 | A payment inherits its order's amount and currency. | `PaymentService.create` |
+
 ## Deferred (enforced in later phases)
 
 | ID | Rule | Phase |
 |---|---|---|
-| BR-020 | An API key is required for all merchant server-to-server calls. | 3 (payments) |
-| BR-021 | Duplicate payment requests with the same Idempotency-Key return the original result. | 3 |
 | BR-022 | A refund is only allowed for a payment in `SUCCESS`/`SETTLED`. | 4 |
 | BR-023 | An `EXPIRED` payment cannot be approved. | 4 |
 | BR-024 | Webhooks are retried at most 3 times. | 5 |

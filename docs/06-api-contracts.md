@@ -117,3 +117,27 @@ Errors: `409 AMOUNT_EXCEEDS_MAX`, `409 REFERENCE_TAKEN`, `400 VALIDATION_ERROR`.
 
 ### GET /api/customers/{id}/orders?page=0&size=20
 `200` paginated orders for that customer (payment-history precursor).
+
+---
+
+## Payments — *requires `bearer-jwt` **or** `api-key`, role MERCHANT*
+
+### POST /api/payments
+Optional header: `Idempotency-Key: <string>` (retry-safe).
+Request:
+```json
+{ "orderId": "uuid", "paymentMethod": "WERO" }   // WERO | BANCONTACT | VISA
+```
+`201` data:
+```json
+{ "id": "uuid", "orderId": "uuid", "paymentMethod": "WERO", "amount": 49.99, "currency": "EUR",
+  "status": "PENDING", "providerReference": "WERO-42AD7E65F3FB4F92", "failureReason": null, "createdAt": "…" }
+```
+Behaviour: `WERO`/`BANCONTACT` → `PENDING`; `VISA` → `AUTHORIZED`.
+Errors: `409 ORDER_NOT_PAYABLE`, `409 IDEMPOTENCY_KEY_REUSED`, `404 NOT_FOUND` (order), `401`.
+
+### GET /api/payments/{id}
+`200` single payment; `404` if not the caller's.
+
+### GET /api/payments?page=0&size=20
+`200` paginated payments (newest first).

@@ -1,5 +1,6 @@
 package com.europay.hub.security;
 
+import com.europay.hub.security.apikey.ApiKeyAuthenticationFilter;
 import com.europay.hub.security.jwt.JwtAuthenticationFilter;
 import com.europay.hub.security.jwt.JwtProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -38,6 +39,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
                                            JwtAuthenticationFilter jwtAuthenticationFilter,
+                                           ApiKeyAuthenticationFilter apiKeyAuthenticationFilter,
                                            RestAuthenticationEntryPoint authenticationEntryPoint,
                                            RestAccessDeniedHandler accessDeniedHandler) throws Exception {
         http
@@ -49,7 +51,9 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(authenticationEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                // JWT first (dashboard), then API key (server-to-server) as a fallback
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(apiKeyAuthenticationFilter, JwtAuthenticationFilter.class);
         return http.build();
     }
 
