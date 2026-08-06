@@ -19,18 +19,17 @@ function DonutTooltip({ active, payload }: any) {
 export function MethodDonut({ data }: { data: { name: string; value: number }[] }) {
   const total = data.reduce((s, d) => s + d.value, 0);
   return (
-    <div className="flex items-center gap-6">
-      <div className="relative h-[180px] w-[180px] shrink-0">
+    <div className="flex w-full flex-col items-center gap-5">
+      <div className="relative h-[170px] w-[170px] shrink-0">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
-            <Pie data={data} dataKey="value" nameKey="name" innerRadius={58} outerRadius={82}
+            <Pie data={data} dataKey="value" nameKey="name" innerRadius={55} outerRadius={80}
               paddingAngle={3} stroke="none">
               {data.map((d) => (
                 <Cell key={d.name} fill={METHOD_COLORS[d.name] ?? "hsl(240 4% 60%)"} />
               ))}
             </Pie>
             <Tooltip content={<DonutTooltip />} />
-
           </PieChart>
         </ResponsiveContainer>
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
@@ -38,11 +37,12 @@ export function MethodDonut({ data }: { data: { name: string; value: number }[] 
           <span className="text-xs text-muted-foreground">payments</span>
         </div>
       </div>
-      <ul className="space-y-2 text-sm">
+
+      <ul className="w-full space-y-1.5">
         {data.map((d) => (
-          <li key={d.name} className="flex items-center gap-2">
+          <li key={d.name} className="flex items-center justify-between gap-3">
             <MethodLogo method={d.name} />
-            <span className="text-muted-foreground">· {d.value}</span>
+            <span className="text-sm font-semibold tabular-nums text-muted-foreground">{d.value}</span>
           </li>
         ))}
         {data.length === 0 && <li className="text-muted-foreground">No data yet</li>}

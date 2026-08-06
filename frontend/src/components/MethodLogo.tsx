@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
  */
 
 const base =
-  "inline-flex items-center justify-center gap-1 rounded-md px-2 py-1 text-[11px] font-bold leading-none min-w-[74px] shadow-sm";
+  "inline-flex w-[118px] shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-md px-2 py-1 text-[11px] font-bold leading-none shadow-sm";
 
 export function MethodLogo({ method, className }: { method: string; className?: string }) {
   switch (method) {
