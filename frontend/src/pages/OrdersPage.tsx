@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageHeader } from "@/components/PageHeader";
+import { MethodLogo } from "@/components/MethodLogo";
 
 const METHODS: PaymentMethod[] = ["WERO", "BANCONTACT", "VISA"];
 
@@ -98,13 +99,14 @@ export function OrdersPage() {
                 <TD className="text-muted-foreground">{formatDate(o.createdAt)}</TD>
                 <TD className="text-right">
                   {o.status === "CREATED" ? (
-                    <div className="inline-flex gap-1">
+                    <div className="inline-flex items-center gap-1.5">
                       {METHODS.map((m) => (
-                        <Button key={m} size="sm" variant="outline"
+                        <button key={m} type="button" title={`Pay with ${m}`}
                           disabled={pay.isPending}
+                          className="transition hover:opacity-80 disabled:opacity-50"
                           onClick={() => pay.mutate({ orderId: o.id, paymentMethod: m })}>
-                          {m}
-                        </Button>
+                          <MethodLogo method={m} />
+                        </button>
                       ))}
                     </div>
                   ) : <span className="text-xs text-muted-foreground">—</span>}

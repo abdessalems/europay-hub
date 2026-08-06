@@ -1,5 +1,6 @@
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { METHOD_COLORS } from "@/lib/analytics";
+import { MethodLogo } from "@/components/MethodLogo";
 
 export function MethodDonut({ data }: { data: { name: string; value: number }[] }) {
   const total = data.reduce((s, d) => s + d.value, 0);
@@ -27,8 +28,7 @@ export function MethodDonut({ data }: { data: { name: string; value: number }[] 
       <ul className="space-y-2 text-sm">
         {data.map((d) => (
           <li key={d.name} className="flex items-center gap-2">
-            <span className="size-3 rounded-full" style={{ background: METHOD_COLORS[d.name] ?? "gray" }} />
-            <span className="font-medium">{d.name}</span>
+            <MethodLogo method={d.name} />
             <span className="text-muted-foreground">· {d.value}</span>
           </li>
         ))}

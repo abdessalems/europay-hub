@@ -9,6 +9,7 @@ import { Table, THead, TBody, TR, TH, TD } from "@/components/ui/table";
 import { StatusBadge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/PageHeader";
 import { StatCard } from "@/components/StatCard";
+import { MethodLogo } from "@/components/MethodLogo";
 import { RevenueAreaChart } from "@/components/charts/RevenueAreaChart";
 import { MethodDonut } from "@/components/charts/MethodDonut";
 
@@ -81,7 +82,7 @@ export function DashboardPage() {
             {rows.slice(0, 8).map((p) => (
               <TR key={p.id}>
                 <TD className="font-mono text-xs">{p.providerReference ?? p.id.slice(0, 8)}</TD>
-                <TD>{p.paymentMethod}</TD>
+                <TD><MethodLogo method={p.paymentMethod} /></TD>
                 <TD className="font-medium">{formatMoney(p.amount, p.currency)}</TD>
                 <TD><StatusBadge status={p.status} /></TD>
                 <TD className="text-muted-foreground">{formatDate(p.createdAt)}</TD>

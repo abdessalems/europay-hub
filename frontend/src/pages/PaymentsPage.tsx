@@ -7,6 +7,7 @@ import { Table, THead, TBody, TR, TH, TD } from "@/components/ui/table";
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/PageHeader";
+import { MethodLogo } from "@/components/MethodLogo";
 
 export function PaymentsPage() {
   const qc = useQueryClient();
@@ -50,7 +51,7 @@ export function PaymentsPage() {
             {(data?.content ?? []).map((p) => (
               <TR key={p.id}>
                 <TD className="font-mono text-xs">{p.providerReference ?? p.id.slice(0, 8)}</TD>
-                <TD>{p.paymentMethod}</TD>
+                <TD><MethodLogo method={p.paymentMethod} /></TD>
                 <TD className="font-medium">{formatMoney(p.amount, p.currency)}</TD>
                 <TD><StatusBadge status={p.status} /></TD>
                 <TD className="text-muted-foreground">{formatDate(p.createdAt)}</TD>
