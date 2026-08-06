@@ -9,14 +9,14 @@
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
 
-    --primary: 262 83% 58%;
+    --primary: 347 77% 50%;
     --primary-foreground: 0 0% 100%;
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
     --muted: 240 4.8% 95.9%;
     --muted-foreground: 240 3.8% 46.1%;
-    --accent: 262 83% 96%;
-    --accent-foreground: 262 72% 42%;
+    --accent: 347 77% 96%;
+    --accent-foreground: 347 77% 40%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
@@ -27,12 +27,12 @@
 
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 262 83% 58%;
+    --ring: 347 77% 50%;
     --radius: 0.75rem;
 
-    /* Deep violet-tinted sidebar in both themes — the brand surface */
-    --sidebar: 264 30% 11%;
-    --sidebar-foreground: 260 20% 82%;
+    /* Deep rose-tinted sidebar in both themes — the brand surface */
+    --sidebar: 345 30% 11%;
+    --sidebar-foreground: 345 18% 82%;
   }
 
   .dark {
@@ -41,13 +41,13 @@
     --card: 240 10% 6.5%;
     --card-foreground: 0 0% 98%;
 
-    --primary: 263 70% 63%;
+    --primary: 347 77% 58%;
     --primary-foreground: 0 0% 100%;
     --secondary: 240 4% 15%;
     --secondary-foreground: 0 0% 98%;
     --muted: 240 4% 15%;
     --muted-foreground: 240 5% 65%;
-    --accent: 263 40% 22%;
+    --accent: 347 40% 22%;
     --accent-foreground: 0 0% 98%;
 
     --destructive: 0 62% 52%;
@@ -59,10 +59,10 @@
 
     --border: 240 4% 18%;
     --input: 240 4% 18%;
-    --ring: 263 70% 63%;
+    --ring: 347 77% 58%;
 
-    --sidebar: 264 28% 9%;
-    --sidebar-foreground: 260 18% 80%;
+    --sidebar: 345 28% 9%;
+    --sidebar-foreground: 345 16% 80%;
   }
 
   * {
@@ -80,7 +80,7 @@
 /* Subtle brand gradient used on auth screens */
 .brand-gradient {
   background:
-    radial-gradient(1200px 600px at 10% -10%, hsl(262 83% 58% / 0.25), transparent 60%),
-    radial-gradient(900px 500px at 100% 0%, hsl(292 80% 55% / 0.18), transparent 55%),
+    radial-gradient(1200px 600px at 10% -10%, hsl(347 77% 50% / 0.25), transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, hsl(330 82% 55% / 0.18), transparent 55%),
     hsl(var(--background));
 }
