@@ -79,3 +79,41 @@ export interface Payment {
   failureReason: string | null;
   createdAt: string;
 }
+
+export interface DashboardMetrics {
+  revenue: number;
+  orderCount: number;
+  paymentCount: number;
+  pendingCount: number;
+  successRate: number;
+  paymentsByMethod: { key: string; count: number }[];
+  paymentsByStatus: { key: string; count: number }[];
+  revenueByDay: { date: string; amount: number }[];
+}
+
+export interface WebhookEndpoint {
+  url: string;
+  active: boolean;
+  secret: string;
+  createdAt: string;
+}
+
+export interface WebhookEvent {
+  id: string;
+  eventType: string;
+  status: string;
+  attempts: number;
+  lastStatusCode: number | null;
+  paymentId: string | null;
+  createdAt: string;
+}
+
+export interface AuditLog {
+  id: string;
+  actor: string;
+  action: string;
+  entityType: string | null;
+  entityId: string | null;
+  metadata: string | null;
+  createdAt: string;
+}

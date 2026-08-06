@@ -8,6 +8,8 @@ import { OrdersPage } from "./pages/OrdersPage";
 import { PaymentsPage } from "./pages/PaymentsPage";
 import { CustomersPage } from "./pages/CustomersPage";
 import { ApiKeysPage } from "./pages/ApiKeysPage";
+import { WebhooksPage } from "./pages/WebhooksPage";
+import { AuditPage } from "./pages/AuditPage";
 
 export default function App() {
   return (
@@ -20,7 +22,9 @@ export default function App() {
           <Route path="/orders" element={<OrdersPage />} />
           <Route path="/payments" element={<PaymentsPage />} />
           <Route path="/customers" element={<CustomersPage />} />
+          <Route path="/webhooks" element={<WebhooksPage />} />
           <Route path="/api-keys" element={<ApiKeysPage />} />
+          <Route path="/audit" element={<AuditPage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

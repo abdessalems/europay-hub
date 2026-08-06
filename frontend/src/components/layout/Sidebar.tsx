@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, ShoppingCart, CreditCard, KeyRound, Users } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, CreditCard, KeyRound, Users, Webhook, ScrollText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BrandMark } from "@/components/BrandMark";
 
@@ -8,7 +8,9 @@ const nav = [
   { to: "/orders", label: "Orders", icon: ShoppingCart },
   { to: "/payments", label: "Payments", icon: CreditCard },
   { to: "/customers", label: "Customers", icon: Users },
+  { to: "/webhooks", label: "Webhooks", icon: Webhook },
   { to: "/api-keys", label: "API Keys", icon: KeyRound },
+  { to: "/audit", label: "Audit log", icon: ScrollText },
 ];
 
 export function Sidebar() {
