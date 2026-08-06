@@ -141,3 +141,15 @@ Errors: `409 ORDER_NOT_PAYABLE`, `409 IDEMPOTENCY_KEY_REUSED`, `404 NOT_FOUND` (
 
 ### GET /api/payments?page=0&size=20
 `200` paginated payments (newest first).
+
+### POST /api/payments/{id}/approve
+Confirms a `PENDING`/`AUTHORIZED` payment → `SUCCESS`; the order becomes `PAID`. `409` on illegal state.
+
+### POST /api/payments/{id}/cancel
+`CREATED`/`PENDING`/`AUTHORIZED` → `CANCELLED`. `409` otherwise.
+
+### POST /api/payments/{id}/refund
+Body (optional): `{ "reason": "customer request" }`. `SUCCESS`/`SETTLED` → `REFUNDED`; `409 REFUND_NOT_ALLOWED` otherwise.
+
+### POST /api/payments/{id}/retry
+`FAILED` → re-submitted to the provider. `409 RETRY_NOT_ALLOWED` otherwise.

@@ -3,6 +3,7 @@ package com.europay.hub.features.payment.presentation;
 import com.europay.hub.features.payment.application.PaymentService;
 import com.europay.hub.features.payment.application.dto.CreatePaymentRequest;
 import com.europay.hub.features.payment.application.dto.PaymentResponse;
+import com.europay.hub.features.payment.application.dto.RefundRequest;
 import com.europay.hub.security.SecurityUser;
 import com.europay.hub.shared.web.ApiResponse;
 import com.europay.hub.shared.web.PageResponse;
@@ -58,6 +59,37 @@ public class PaymentController {
     public ApiResponse<PaymentResponse> get(
             @AuthenticationPrincipal SecurityUser user, @PathVariable UUID id) {
         return ApiResponse.ok(paymentService.get(user.merchantId(), id));
+    }
+
+    @PostMapping("/{id}/approve")
+    @Operation(summary = "Approve a payment",
+            description = "Confirms a PENDING/AUTHORIZED payment → SUCCESS and marks the order paid.")
+    public ApiResponse<PaymentResponse> approve(
+            @AuthenticationPrincipal SecurityUser user, @PathVariable UUID id) {
+        return ApiResponse.ok(paymentService.approve(user.merchantId(), id));
+    }
+
+    @PostMapping("/{id}/cancel")
+    @Operation(summary = "Cancel a payment", description = "Allowed before completion (CREATED/PENDING/AUTHORIZED).")
+    public ApiResponse<PaymentResponse> cancel(
+            @AuthenticationPrincipal SecurityUser user, @PathVariable UUID id) {
+        return ApiResponse.ok(paymentService.cancel(user.merchantId(), id));
+    }
+
+    @PostMapping("/{id}/refund")
+    @Operation(summary = "Refund a payment", description = "Allowed only for SUCCESS/SETTLED payments.")
+    public ApiResponse<PaymentResponse> refund(
+            @AuthenticationPrincipal SecurityUser user, @PathVariable UUID id,
+            @Valid @RequestBody(required = false) RefundRequest request) {
+        String reason = request == null ? null : request.reason();
+        return ApiResponse.ok(paymentService.refund(user.merchantId(), id, reason));
+    }
+
+    @PostMapping("/{id}/retry")
+    @Operation(summary = "Retry a failed payment", description = "Re-submits a FAILED payment to its provider.")
+    public ApiResponse<PaymentResponse> retry(
+            @AuthenticationPrincipal SecurityUser user, @PathVariable UUID id) {
+        return ApiResponse.ok(paymentService.retry(user.merchantId(), id));
     }
 
     @GetMapping

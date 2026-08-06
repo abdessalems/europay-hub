@@ -9,6 +9,9 @@ import com.europay.hub.features.payment.application.port.IdempotencyRecord;
 import com.europay.hub.features.payment.application.port.IdempotencyStore;
 import com.europay.hub.features.payment.domain.Payment;
 import com.europay.hub.features.payment.domain.PaymentRepository;
+import com.europay.hub.features.payment.domain.PaymentStatus;
+import com.europay.hub.features.payment.domain.Refund;
+import com.europay.hub.features.payment.domain.RefundRepository;
 import com.europay.hub.features.payment.domain.port.PaymentProviderRegistry;
 import com.europay.hub.features.payment.domain.port.ProviderResult;
 import com.europay.hub.shared.exception.BusinessRuleViolationException;
@@ -16,30 +19,41 @@ import com.europay.hub.shared.exception.ResourceNotFoundException;
 import com.europay.hub.shared.web.PageResponse;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.HexFormat;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Payment creation and queries. Creating a payment: validates the order, submits to the chosen
- * provider (Strategy), applies the resulting state transition, and honours the Idempotency-Key.
+ * Payment use cases: creation (with provider Strategy + idempotency) and the lifecycle
+ * transitions (approve, refund, cancel, retry, expire). When a payment succeeds, the order
+ * is marked paid.
  */
 @Service
 public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
+    private final RefundRepository refundRepository;
     private final PaymentProviderRegistry providerRegistry;
     private final IdempotencyStore idempotencyStore;
+    private final long expiryMinutes;
 
     public PaymentService(PaymentRepository paymentRepository, OrderRepository orderRepository,
-                          PaymentProviderRegistry providerRegistry, IdempotencyStore idempotencyStore) {
+                          RefundRepository refundRepository, PaymentProviderRegistry providerRegistry,
+                          IdempotencyStore idempotencyStore,
+                          @Value("${europay.payment.expiry-minutes}") long expiryMinutes) {
         this.paymentRepository = paymentRepository;
         this.orderRepository = orderRepository;
+        this.refundRepository = refundRepository;
         this.providerRegistry = providerRegistry;
         this.idempotencyStore = idempotencyStore;
+        this.expiryMinutes = expiryMinutes;
     }
 
     @Transactional
@@ -64,11 +78,7 @@ public class PaymentService {
         Payment payment = Payment.create(merchantId, order.id(), request.paymentMethod(), order.amount());
         ProviderResult result = providerRegistry.forMethod(request.paymentMethod()).submit(payment);
         payment.submit(result.providerReference());
-        switch (result.outcome()) {
-            case PENDING -> { /* stays PENDING, awaiting approval */ }
-            case AUTHORIZED -> payment.authorize();
-            case DECLINED -> payment.fail(result.declineReason());
-        }
+        applyOutcome(payment, result);
 
         Payment saved = paymentRepository.save(payment);
         if (idempotencyKey != null && !idempotencyKey.isBlank()) {
@@ -77,17 +87,92 @@ public class PaymentService {
         return PaymentResponse.from(saved);
     }
 
+    /** Customer/merchant confirms the payment → SUCCESS, and the order is marked paid. */
+    @Transactional
+    public PaymentResponse approve(UUID merchantId, UUID paymentId) {
+        Payment payment = requireOwned(merchantId, paymentId);
+        payment.markSucceeded();
+        Payment saved = paymentRepository.save(payment);
+        markOrderPaid(saved.orderId());
+        return PaymentResponse.from(saved);
+    }
+
+    @Transactional
+    public PaymentResponse cancel(UUID merchantId, UUID paymentId) {
+        Payment payment = requireOwned(merchantId, paymentId);
+        payment.cancel();
+        return PaymentResponse.from(paymentRepository.save(payment));
+    }
+
+    @Transactional
+    public PaymentResponse refund(UUID merchantId, UUID paymentId, String reason) {
+        Payment payment = requireOwned(merchantId, paymentId);
+        if (payment.status() != PaymentStatus.SUCCESS && payment.status() != PaymentStatus.SETTLED) {
+            throw new BusinessRuleViolationException(
+                    "REFUND_NOT_ALLOWED", "Refund is only allowed for SUCCESS/SETTLED payments (was " + payment.status() + ")");
+        }
+        payment.refund();
+        refundRepository.save(Refund.create(payment.id(), merchantId, payment.amount(), reason));
+        return PaymentResponse.from(paymentRepository.save(payment));
+    }
+
+    @Transactional
+    public PaymentResponse retry(UUID merchantId, UUID paymentId) {
+        Payment payment = requireOwned(merchantId, paymentId);
+        if (payment.status() != PaymentStatus.FAILED) {
+            throw new BusinessRuleViolationException(
+                    "RETRY_NOT_ALLOWED", "Only a FAILED payment can be retried (was " + payment.status() + ")");
+        }
+        ProviderResult result = providerRegistry.forMethod(payment.method()).submit(payment);
+        payment.retry(result.providerReference());
+        applyOutcome(payment, result);
+        return PaymentResponse.from(paymentRepository.save(payment));
+    }
+
+    /** Expire PENDING payments older than the configured window. Driven by a scheduler. */
+    @Transactional
+    public int expireStalePayments() {
+        Instant cutoff = Instant.now().minus(expiryMinutes, ChronoUnit.MINUTES);
+        List<Payment> expirable = paymentRepository.findExpirable(cutoff);
+        for (Payment payment : expirable) {
+            payment.expire();
+            paymentRepository.save(payment);
+        }
+        return expirable.size();
+    }
+
     @Transactional(readOnly = true)
     public PaymentResponse get(UUID merchantId, UUID paymentId) {
-        return PaymentResponse.from(paymentRepository.findById(paymentId)
-                .filter(p -> p.merchantId().equals(merchantId))
-                .orElseThrow(() -> new ResourceNotFoundException("Payment", paymentId)));
+        return PaymentResponse.from(requireOwned(merchantId, paymentId));
     }
 
     @Transactional(readOnly = true)
     public PageResponse<PaymentResponse> list(UUID merchantId, int page, int size) {
         return PageResponse.of(paymentRepository.findByMerchantId(merchantId, page, size)
                 .map(PaymentResponse::from));
+    }
+
+    private Payment requireOwned(UUID merchantId, UUID paymentId) {
+        return paymentRepository.findById(paymentId)
+                .filter(p -> p.merchantId().equals(merchantId))
+                .orElseThrow(() -> new ResourceNotFoundException("Payment", paymentId));
+    }
+
+    private void markOrderPaid(UUID orderId) {
+        orderRepository.findById(orderId).ifPresent(order -> {
+            if (order.status() == OrderStatus.CREATED) {
+                order.markPaid();
+                orderRepository.save(order);
+            }
+        });
+    }
+
+    private static void applyOutcome(Payment payment, ProviderResult result) {
+        switch (result.outcome()) {
+            case PENDING -> { /* awaiting approval */ }
+            case AUTHORIZED -> payment.authorize();
+            case DECLINED -> payment.fail(result.declineReason());
+        }
     }
 
     private Optional<PaymentResponse> replayIfPresent(UUID merchantId, String key, String requestHash) {

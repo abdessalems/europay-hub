@@ -104,6 +104,28 @@ Stories are `US-nnn`; each maps to acceptance criteria (doc 05) and automated te
 **As a** merchant **I want to** list my payments (paginated) **So that** I can reconcile.
 - Endpoint: `GET /api/payments?page=&size=`
 
+## Phase 4 — Payment lifecycle
+
+### US-017 — Approve a payment
+**As a** merchant **I want to** approve a pending/authorized payment **So that** it succeeds and the order is marked paid.
+- Rules: BR-050 · Endpoint: `POST /api/payments/{id}/approve`
+
+### US-018 — Refund a payment
+**As a** merchant **I want to** refund a successful payment **So that** the customer gets their money back.
+- Rules: BR-022 · Endpoint: `POST /api/payments/{id}/refund`
+
+### US-019 — Cancel a payment
+**As a** merchant **I want to** cancel a payment before it completes **So that** an abandoned payment is voided.
+- Rules: BR-052 · Endpoint: `POST /api/payments/{id}/cancel`
+
+### US-020 — Retry a failed payment
+**As a** merchant **I want to** retry a failed payment **So that** a transient failure can be recovered.
+- Rules: BR-051 · Endpoint: `POST /api/payments/{id}/retry`
+
+### US-021 — Automatic expiry (system)
+**As the** platform **I want to** expire stale pending payments **So that** they cannot be approved after their window.
+- Rules: BR-023 · Driver: `PaymentExpiryScheduler` (`@Scheduled`)
+
 ---
 
 ## Use Case — UC-001: Register a merchant

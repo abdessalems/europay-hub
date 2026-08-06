@@ -74,3 +74,12 @@ Given/When/Then per story. Each criterion is covered by an automated test (see `
 
 - **AC-015.1** Given one of my payments, When I GET it, Then I receive its status and provider reference; a payment not mine returns `404`.
 - **AC-016.1** Given I have payments, When I list them, Then I receive a paginated envelope, newest first.
+
+## US-017…020 — Lifecycle
+
+- **AC-017.1** Given a `PENDING` payment, When I approve it, Then it becomes `SUCCESS` and its order becomes `PAID`.
+- **AC-018.1** Given a `SUCCESS` payment, When I refund it, Then it becomes `REFUNDED` and a refund record is stored.
+- **AC-018.2** Given a payment that is not `SUCCESS`/`SETTLED`, When I refund it, Then I receive `409 REFUND_NOT_ALLOWED`.
+- **AC-019.1** Given a `PENDING` payment, When I cancel it, Then it becomes `CANCELLED`.
+- **AC-020.1** Given a payment that is not `FAILED`, When I retry it, Then I receive `409 RETRY_NOT_ALLOWED`.
+- **AC-021.1** Given a `PENDING` payment older than the expiry window, When the scheduler runs, Then the payment becomes `EXPIRED` and can no longer be approved.

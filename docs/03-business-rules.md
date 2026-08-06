@@ -46,12 +46,20 @@ Numbered, testable rules. Each rule links to the code/test that enforces it. New
 | BR-044 | Payment endpoints accept either a JWT (role MERCHANT) or an API key (`X-API-Key`). | `ApiKeyAuthenticationFilter`, `SecurityConfig` |
 | BR-045 | A payment inherits its order's amount and currency. | `PaymentService.create` |
 
+## Payment lifecycle (Phase 4)
+
+| ID | Rule | Enforced by |
+|---|---|---|
+| BR-050 | Approving a payment moves it to `SUCCESS` and marks its order `PAID`. | `PaymentService.approve`, `markOrderPaid` |
+| BR-022 | A refund is only allowed for `SUCCESS`/`SETTLED` payments. | `PaymentService.refund` (`REFUND_NOT_ALLOWED`) |
+| BR-023 | Expired payments cannot be approved; PENDING payments past the window are expired automatically. | `PaymentExpiryScheduler`, `Payment.expire`, state machine |
+| BR-051 | Only a `FAILED` payment can be retried. | `PaymentService.retry` (`RETRY_NOT_ALLOWED`) |
+| BR-052 | A payment can be cancelled before completion (`CREATED`/`PENDING`/`AUTHORIZED`). | `Payment.cancel` |
+
 ## Deferred (enforced in later phases)
 
 | ID | Rule | Phase |
 |---|---|---|
-| BR-022 | A refund is only allowed for a payment in `SUCCESS`/`SETTLED`. | 4 |
-| BR-023 | An `EXPIRED` payment cannot be approved. | 4 |
 | BR-024 | Webhooks are retried at most 3 times. | 5 |
 | BR-025 | Payment amount inherits the order's validated amount (max + EUR already enforced at order creation, BR-030/031). | 3 |
 | BR-026 | Every important action is audited. | 6 |

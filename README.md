@@ -118,12 +118,14 @@ Interactive OpenAPI docs are served at `/swagger-ui.html` (with an **Authorize**
 | GET | `/api/customers/{id}/orders` | Customer order history | ✅ |
 | POST | `/api/payments` | Create a payment (Idempotency-Key aware; JWT or API key) | ✅ |
 | GET | `/api/payments/{id}` · `/api/payments` | Payment status / list (paginated) | ✅ |
+| POST | `/api/payments/{id}/approve` | Approve → SUCCESS (marks order paid) | ✅ |
+| POST | `/api/payments/{id}/refund` | Refund a successful payment | ✅ |
+| POST | `/api/payments/{id}/cancel` · `/retry` | Cancel / retry a payment | ✅ |
 
 Planned:
 
 | Method | Path | Description |
 |---|---|---|
-| POST | `/api/payments/{id}/refund` | Refund a successful payment |
 | POST | `/api/payments/webhook` | Provider callback |
 | GET | `/api/transactions` | Transaction history (paged) |
 | GET | `/api/dashboard` | Merchant dashboard metrics |
@@ -136,7 +138,7 @@ Planned:
 | 1 | IAM & Merchant (JWT, roles, hashed API keys) | ✅ |
 | 2 | Orders & Customers (pagination, order lifecycle) | ✅ |
 | 3 | Payment core (state machine, mock providers, idempotency, API-key auth) | ✅ |
-| 4 | Payment lifecycle (authorize, refund, cancel, retry, expiry) | ⬜ |
+| 4 | Payment lifecycle (approve, refund, cancel, retry, expiry job) | ✅ |
 | 5 | Webhooks (outbox, signing, retries) | ⬜ |
 | 6 | Audit & Dashboard | ⬜ |
 | 7 | Hardening & full documentation | ⬜ |

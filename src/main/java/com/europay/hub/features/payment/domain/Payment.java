@@ -67,6 +67,13 @@ public class Payment extends AggregateRoot<UUID> {
         transitionTo(PaymentStatus.EXPIRED);
     }
 
+    /** Retry a failed payment: re-open it as PENDING with a fresh provider reference. */
+    public void retry(String providerReference) {
+        transitionTo(PaymentStatus.PENDING);
+        this.providerReference = Objects.requireNonNull(providerReference, "providerReference");
+        this.failureReason = null;
+    }
+
     public void cancel() {
         transitionTo(PaymentStatus.CANCELLED);
     }

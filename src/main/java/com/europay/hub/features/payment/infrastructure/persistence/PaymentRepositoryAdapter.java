@@ -4,8 +4,10 @@ import com.europay.hub.features.payment.domain.Payment;
 import com.europay.hub.features.payment.domain.PaymentRepository;
 import com.europay.hub.shared.domain.Currency;
 import com.europay.hub.shared.domain.Money;
+import com.europay.hub.features.payment.domain.PaymentStatus;
 import com.europay.hub.shared.domain.PageResult;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -39,6 +41,13 @@ public class PaymentRepositoryAdapter implements PaymentRepository {
         return new PageResult<>(
                 result.getContent().stream().map(PaymentRepositoryAdapter::toDomain).toList(),
                 result.getNumber(), result.getSize(), result.getTotalElements(), result.getTotalPages());
+    }
+
+    @Override
+    public List<Payment> findExpirable(Instant cutoff) {
+        return jpa.findByStatusAndCreatedAtBefore(PaymentStatus.PENDING, cutoff).stream()
+                .map(PaymentRepositoryAdapter::toDomain)
+                .toList();
     }
 
     private static PaymentEntity toEntity(Payment p) {
