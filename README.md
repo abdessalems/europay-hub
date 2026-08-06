@@ -181,6 +181,12 @@ All seven methods render as branded chips: **Visa, Mastercard, Bancontact, Wero,
 |---|---|---|
 | ![Webhooks](screenshots/WEBHOOKS.png) | ![API Keys](screenshots/APIKeys.png) | ![Audit log](screenshots/auditlog.png) |
 
+## ⚖️ Disclaimer & Trademarks
+
+EuroPay Hub is an **independent, educational portfolio project**. It is **not affiliated with, endorsed by, or connected to** Worldline, the European Payments Initiative, Wero, Bancontact, Visa, Mastercard, PayPal, Apple Pay, or any payment provider or bank.
+
+All payment integrations are **mock implementations** — no real payments are processed and no real provider APIs are called. Product and company names, and all payment-method names and marks (Wero, Bancontact, Visa, Mastercard, PayPal, Apple Pay, SEPA, …), are **trademarks of their respective owners** and are used here **only nominatively**, to identify the methods this demo simulates. No third-party logo files are bundled; the in-app method marks are original renderings.
+
 ## 📄 License
 
-MIT — see [LICENSE](LICENSE).
+The **source code of this project** is released under the **MIT License** — see [LICENSE](LICENSE). The MIT license applies to this project's own code only; it grants no rights in any third-party trademark, brand, or name referenced above.
