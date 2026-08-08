@@ -11,7 +11,6 @@
 **Status**
 
 [![CI](https://github.com/abdessalems/europay-hub/actions/workflows/ci.yml/badge.svg)](https://github.com/abdessalems/europay-hub/actions)
-![Tests](https://img.shields.io/badge/tests-28%20passing-brightgreen)
 ![Architecture](https://img.shields.io/badge/architecture-Clean%20%2B%20DDD-8A2BE2)
 ![Coverage](https://img.shields.io/badge/layers-enforced%20by%20ArchUnit-6DB33F)
 ![License](https://img.shields.io/badge/license-MIT-blue)
