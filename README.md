@@ -4,12 +4,38 @@
 
 **A modern European Merchant Payment Platform** — inspired by Worldline and the European Payments Initiative.
 
-*Accept multiple payment methods (Wero · Bancontact · Visa) through a single, clean API.*
+*Accept 7 payment methods — Visa · Mastercard · Bancontact · Wero · SEPA Instant · PayPal · Apple Pay — through a single, clean API.*
+
+<br/>
+
+**Status**
 
 [![CI](https://github.com/abdessalems/europay-hub/actions/workflows/ci.yml/badge.svg)](https://github.com/abdessalems/europay-hub/actions)
-![Java](https://img.shields.io/badge/Java-21-orange)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4-green)
+![Tests](https://img.shields.io/badge/tests-28%20passing-brightgreen)
+![Architecture](https://img.shields.io/badge/architecture-Clean%20%2B%20DDD-8A2BE2)
+![Coverage](https://img.shields.io/badge/layers-enforced%20by%20ArchUnit-6DB33F)
 ![License](https://img.shields.io/badge/license-MIT-blue)
+![PRs](https://img.shields.io/badge/PRs-welcome-ff2d55)
+
+**Backend**
+
+![Java](https://img.shields.io/badge/Java-21-ED8B00?logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4-6DB33F?logo=springboot&logoColor=white)
+![Spring Security](https://img.shields.io/badge/Spring%20Security-JWT%20%2B%20API%20Keys-6DB33F?logo=springsecurity&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
+![Flyway](https://img.shields.io/badge/Flyway-V1→V7-CC0200?logo=flyway&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
+![OpenAPI](https://img.shields.io/badge/OpenAPI-Swagger-85EA2D?logo=swagger&logoColor=black)
+![JUnit5](https://img.shields.io/badge/Tested%20with-JUnit%205%20%2B%20Testcontainers-25A162?logo=junit5&logoColor=white)
+![Maven](https://img.shields.io/badge/Build-Maven-C71A36?logo=apachemaven&logoColor=white)
+
+**Frontend**
+
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
+![Tailwind](https://img.shields.io/badge/Tailwind-3-06B6D4?logo=tailwindcss&logoColor=white)
+![TanStack Query](https://img.shields.io/badge/TanStack-Query-FF4154?logo=reactquery&logoColor=white)
 
 </div>
 
